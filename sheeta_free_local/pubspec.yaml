@@ -1,0 +1,15 @@
+name: spreadsheet_v2
+description: A sample Polymer application
+dependencies:
+    polymer: any
+    decimal: any
+    core_elements: any
+    csv_sheet: any
+    vector_math: any
+    three: any
+transformers:
+- polymer:
+    entry_points: 
+    - web/index.html
+    - web/marching_cube_output.html
+

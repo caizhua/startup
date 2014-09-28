@@ -1,0 +1,69 @@
+<link rel="import" href="packages/polymer/polymer.html">
+<polymer-element name="user-forum" attributes="username">
+  <template> 
+  
+    <style>     </style>
+  
+  <template if="{{forum_list_mode==true}}"> 
+  <div id="forum">  
+  
+      <p> <button on-click="{{new_thread}}"> Create New Thread</button>  <button on-click="{{refresh_forum}}"> Refresh </button>  </p>
+      
+     <template repeat="{{forum in forum_list}}"> 
+     <div on-click="{{show_thread}}" data-msg="{{forum_list.indexOf(forum)}}" >     
+      <p style="background-color:Aquamarine;"> 
+      <label> {{forum.thread_ID}} </label>
+      <label > {{forum.title}} </label>
+      <label> User: {{forum.creation_user}} </label>
+      <label> Time: {{forum.creation_time}} </label>
+      <label> Reply: {{forum.num_of_post}} </label>  </p>
+      </div>
+    </template>   
+
+  </div>
+  </template>
+  
+  
+  <template if="{{new_thread_mode==true}}"> 
+    <p>  <label>Create New Thread</label> </p>
+    <p>  <input value="{{new_forum_thread.title}}">  </p>
+    <p>  <textarea cols=80 rows=10 value="{{new_forum_thread.init_content}}"> </textarea>  </p>
+     <p>  <button on-click="{{new_thread_create}}"> Create </button> <button on-click="{{new_thread_discard}}"> Discard </button>  </p>
+  </template>
+  
+  
+  <template if="{{thread_content_mode==true}}"> 
+  <div id="post">     
+   <p> <button on-click="{{back_to_forum_list}}"> Back to Forum List </button>   </p>
+   
+    <template repeat="{{forum in forum_list}}"> 
+    <template if="{{forum_list.indexOf(forum)==current_thread}}"> 
+     <p style="background-color:cyan;">
+      <label>  {{forum.title}} </label>
+      <label> User: {{forum.creation_user}} </label>
+      <label> Time: {{forum.creation_time}} </label>
+      <label> Reply: {{forum.num_of_post}} </label>
+      </p>
+      
+      <p>   {{forum.init_content}}     </p>
+      
+    <template repeat="{{post in forum.post_in_thread}}"> 
+    <p style="background-color:pink;">  <label> {{post.post_ID}} </label>
+        <label> User: {{post.post_user}} </label>
+        <label> Time: {{post.post_time}} </label>  </p>
+    <p>    {{post.content}}      </p>
+     </template> 
+     
+    </template>
+    </template>
+
+  <p>   <textarea cols=80 rows=6 value="{{textarea_content}}"> </textarea>    </p>
+   <p> <button on-click="{{post_response}}"> Post your response</button>    </p>
+  </div>
+  </template>
+  
+  
+  </template>
+  <script type="application/dart" src="user_forum.dart"></script>
+</polymer-element>
+

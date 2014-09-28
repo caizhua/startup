@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="p9q6sk0kbl8817b"></script>
+</head>
+<body>
+
+<div id="chooser-extension-filter-div"></div>
+<img id="chooser-extension-filter-image" style="max-width: 300px; display:none;" />
+
+<script>
+ 
+  // top.postMessage("wwwwwwwwwwwwwwwwww", 'http://127.0.0.1:8080'); 
+ 
+
+    document.getElementById('chooser-extension-filter-div').appendChild(Dropbox.createChooseButton({
+        success: function (files) {
+	          $.get(files[0].link, function (data) {   top.postMessage(data, 'http://127.0.0.1:8080');     });
+        },
+        extensions: ['.csv'],
+        linkType: 'direct'
+    }));
+
+</script>
+
+
+</body>
+</html>

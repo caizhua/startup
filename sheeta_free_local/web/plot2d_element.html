@@ -1,0 +1,842 @@
+<link rel="import" href="packages/polymer/polymer.html">
+<script type="text/javascript" src="math.min.js">     </script>
+<script type="text/javascript" src="numeric-1.2.6.js">     </script>
+<script type="text/javascript" src="rhill-voronoi-core.js">     </script>  
+<script type="text/javascript" src="curve3.js">     </script>
+<script type="text/javascript" src="curve-fit-and-ODE.js">     </script>
+<link rel="import" href="free_overlay.html">
+
+  <polymer-element name="plot2d-element">
+  
+      <template>  
+  
+  <style>  
+
+   #header, #nav {  } 
+
+  #header { 
+    float: none; 
+    position: absolute;
+  }
+   
+  #nav {  
+    width: 150px;
+    background-color: #C0C0C0; 
+    font-family:"Century Gothic", "HelveticaNeueLT Pro 45 Lt", sans-serif; 
+    float: none; 
+  }
+  #nav li { 
+    list-style: none;
+    float: none; 
+    text-align: left;
+    height: 30px ;
+  } 
+  #nav li a { 
+    color: black; 
+    text-decoration: none; 
+    display: block; 
+    width: 150px; 
+    height: 30px ;
+  } 
+  
+  #nav li a:hover { 
+    background-color: #0066FF; 
+  } 
+ 
+  
+  #nav li ul { 
+    display: none; 
+  } 
+  
+  #nav li:hover ul { 
+    display: block; 
+  } 
+
+    
+  #nav li ul li { 
+    float: none; 
+    display: block; 
+  }
+  #nav li ul li a { 
+    width: 150px; 
+    position: relative;
+    top: -30px;
+    left: 100px;
+    background: #C0C0C0; 
+    color: black; 
+  }
+  #nav li ul li a:hover { 
+    background: #0066FF; 
+    color: black; 
+  }
+   
+   </style>
+  
+
+  
+  <!--     <template if="{{data_plot.plot_mode_show==true}}">   -->   <!-- Beginning of plot show mode  -->   
+ <!--      <button on-click="{{show_curve_fit}}" style="top:10px; left:100px; position: absolute;"> Curve Fit </button>       -->
+ <button id="draw_line" on-click="{{ribbon_figure_show}}" style='border:none; font-size:20px;  top:0px; width:140px; height:30px; left:50px; background-color:{{RIBBON_FIGURE==true ? "cyan" : "siver"}}; position: absolute;'> Figure </button>  <!--   </template>   -->   
+ <button id="draw_line" on-click="{{ribbon_edit_show}}" style='border:none; font-size:20px; top:0px; width:140px;  height:30px; left:200px; background-color:{{RIBBON_EDIT==true ? "cyan" : "siver"}}; position: absolute;'> Edit </button>  <!--   </template>   -->       
+ <button id="draw_line" on-click="{{ribbon_draw_show}}" style='border:none; font-size:20px; top:0px; width:140px;  height:30px; left:350px; background-color:{{RIBBON_DRAW==true ? "cyan" : "siver"}}; position: absolute;'> Draw </button>  <!--   </template>   -->     
+ <button id="draw_line" on-click="{{ribbon_text_show}}" style='border:none; font-size:20px; top:0px; width:140px;  height:30px; left:500px; background-color:{{RIBBON_TEXT==true ? "cyan" : "siver"}}; position: absolute;'> Text </button>  <!--   </template>   -->     
+ <button id="draw_line" on-click="{{ribbon_figure_style_show}}" style='border:none; font-size:20px; top:0px; width:140px;  height:30px; left:650px; background-color:{{RIBBON_FIGURE_STYLE==true ? "cyan" : "siver"}}; position: absolute;'> Figure Style </button>  <!--   </template>   -->     
+ <button id="draw_line" on-click="{{ribbon_analysis_show}}" style='border:none; font-size:20px; top:0px; width:140px; left:800px; height:30px; background-color:{{RIBBON_ANALYSIS==true ? "cyan" : "siver"}}; position: absolute;'> Analysis </button>  <!--   </template>   -->     
+
+ 
+ <div style="top:30px; left:50px; width:1050px; height:40px;  background-color:cyan; position:absolute; ">
+ 
+ <template if="{{RIBBON_FIGURE==true}}"> 
+   <button on-click="{{zoom_in_start}}" style="border:none; top:5px; width:110px; height:30px; left:0px; background-color:DeepSkyBlue ;  position: absolute;"> Zoom In</button>     
+   <button on-click="{{zoom_out_start}}" style="border:none; top:5px; width:110px; height:30px; left:120px; background-color:DeepSkyBlue ;  position: absolute;"> Zoom Out</button>   
+   <button on-click="{{show_screen_reader}}" style="border:none; top:5px;width:110px; height:30px; left:240px; background-color:DeepSkyBlue ;  position: absolute;"> Screen Reader </button>  
+   <button on-click="{{show_data_reader}}" style="border:none; top:5px; width:110px;height:30px;  left:360px; background-color:DeepSkyBlue;  position: absolute;"> Data Reader </button>   
+  <!--     <button on-click="{{email_figure_dialog}}" style="top:10px; left:850px; position: absolute;">  Email Figure  </button>    --> 
+   <button on-click="{{embed_share_dialog}}" style="border:none; top:5px; width:110px; height:30px; left:480px; background-color:DeepSkyBlue;  position: absolute;"> Share/Embed </button>    
+   <button on-click="{{data_set_manage}}" style="border:none; top:5px; width:110px; height:30px; left:600px; background-color:DeepSkyBlue;  position: absolute;"> Data Manage </button>    
+    <button on-click="{{data_set_manage}}" style="border:none; top:5px; width:110px; height:30px; left:720px; background-color:DeepSkyBlue;  position: absolute;"> Export Image </button>    
+ </template>
+ 
+  <template if="{{RIBBON_TEXT==true}}"> 
+    <button on-click="{{draw_text_start}}" style="border:none; top:5px; width:90px; height:30px; left:100px; background-color:DeepSkyBlue ;  position: absolute;"> Draw Text </button>   
+     <button on-click="{{ribbon_text_bold}}" style="border:none; top:5px; width:30px; height:30px; left:300px; background-color:DeepSkyBlue ;  position: absolute; font-weight:bold; "> B </button>   
+     <button on-click="{{ribbon_text_italic}}" style="border:none; top:5px;width:30px; height:30px; left:340px; background-color:DeepSkyBlue ;  position: absolute; font-style:italic; "> I </button>  
+     <button on-click="{{ribbon_text_underline}}" style="border:none; top:5px; width:30px;height:30px;  left:380px; background-color:DeepSkyBlue;  position: absolute; text-decoration:underline; "> U </button>   
+     <button on-click="{{ribbon_text_larger}}" style="border:none; top:5px;width:30px; height:30px; left:420px; background-color:DeepSkyBlue ;  position: absolute; font-size:20px; "> A </button>  
+     <button on-click="{{ribbon_text_smaller}}" style="border:none; top:5px; width:30px;height:30px;  left:460px; background-color:DeepSkyBlue;  position: absolute; font-size:10px; "> A </button>   
+      
+       <label  style="border:none; top:13px; width:50px; height:30px; left:550px;  position: absolute;"> Color: </label>  
+        <label  style="border:none; top:13px; width:80px; height:30px; left:670px;  position: absolute;"> Font-size: </label>  
+         <template if='{{data_plot_list[active_plot].label_list.length>0 && active_draw_object=="text"}}'>           
+        <input  type="color" value='{{data_plot_list[active_plot].label_list[active_label].color}}'  style="border:none; top:5px; width:40px; height:30px; left:600px;  position: absolute;">    
+        <input  value='{{data_plot_list[active_plot].label_list[active_label].font_size | asInteger}}'  style="border:none; top:5px; width:40px; height:30px; left:740px;  position: absolute;">      
+      </template>   <!--
+    <button on-click="{{ribbon_text_color}}" style="border:none; top:5px; width:90px;height:30px;  left:600px; background-color:DeepSkyBlue;  position: absolute;"> Color </button>    
+    <button on-click="{{ribbon_text_fontsize}}" style="border:none; top:5px; width:90px;height:30px;  left:700px; background-color:DeepSkyBlue;  position: absolute;"> Font-size </button> 
+   -->
+   <button on-click="{{ribbon_text_font}}" style="border:none; top:5px; width:90px;height:30px;  left:800px; background-color:DeepSkyBlue;  position: absolute;"> Font </button> 
+ 
+ </template>
+ 
+   <template if="{{RIBBON_EDIT==true}}"> 
+    <button on-click="{{ribbon_copy}}" style="border:none; top:5px; width:90px; height:30px; left:0px; background-color:DeepSkyBlue ;  position: absolute;"> Copy </button>     
+   <button on-click="{{ribbon_cut}}" style="border:none; top:5px; width:90px; height:30px; left:100px; background-color:DeepSkyBlue ;  position: absolute;"> Cut</button>   
+   <button on-click="{{ribbon_paste}}" style="border:none; top:5px;width:90px; height:30px; left:200px; background-color:DeepSkyBlue ;  position: absolute;"> Paste </button>  
+   <button on-click="{{ribbon_delete}}" style="border:none; top:5px; width:90px;height:30px;  left:300px; background-color:DeepSkyBlue;  position: absolute;"> Delete </button>   
+    <button on-click="{{ribbon_duplicate_figure}}" style="border:none; top:5px;width:140px; height:30px; left:400px; background-color:DeepSkyBlue ;  position: absolute;"> Duplicate Figure </button>  
+   <button on-click="{{ribbon_insert_inset}}" style="border:none; top:5px; width:140px;height:30px;  left:550px; background-color:DeepSkyBlue;  position: absolute;"> Insert Inset </button>   
+   <button on-click="{{ribbon_rescale_show_all}}" style="border:none; top:5px; width:140px;height:30px;  left:700px; background-color:DeepSkyBlue;  position: absolute;"> Rescale to Show All </button>   
+   </template>
+ 
+  <template if="{{RIBBON_DRAW==true}}"> 
+        <button id="draw_line" on-click="{{draw_line_start}}" style="border:none; top:5px; width:90px; height:30px; left:0px; background-color:DeepSkyBlue ;  position: absolute;"> Line </button>         
+       <button id="draw_rect" on-click="{{draw_rect_start}}" style="border:none; top:5px; width:90px; height:30px; left:100px; background-color:DeepSkyBlue ;  position: absolute;"> Rect </button>        
+       <button id="draw_func_dialog_show" on-click="{{draw_func_dialog_show}}" style="border:none; top:5px; width:90px; height:30px; left:200px; background-color:DeepSkyBlue ;  position: absolute;"> Function </button> 
+       <button id="draw_line" on-click="{{draw_point_start}}" style="border:none; top:5px; width:90px; height:30px; left:300px; background-color:DeepSkyBlue ;  position: absolute;"> Point </button>         
+       <button id="draw_rect" on-click="{{draw_polygon_start}}" style="border:none; top:5px; width:90px; height:30px; left:400px; background-color:DeepSkyBlue ;  position: absolute;"> Polygon </button>        
+       <button id="draw_func_dialog_show" on-click="{{draw_polyline_start}}" style="border:none; top:5px; width:90px; height:30px; left:500px; background-color:DeepSkyBlue ;  position: absolute;"> Polyline </button>   
+       
+        <button id="draw_func_dialog_show" on-click="{{ribbon_draw_fill}}" style="border:none; top:5px; width:90px; height:30px; left:600px; background-color:orange ;  position: absolute;"> Fill </button>       
+      <label  style="border:none; top:13px; width:50px; height:30px; left:700px;  position: absolute;"> Stroke: </label>  
+      <label  style="border:none; top:5px; width:50px; height:30px; left:800px;  position: absolute;"> Stroke width: </label>  
+      <template if='{{active_draw_object=="nothing"}}'>    
+         <input type="color" value='{{stroke_color_predefined}}'  style="border:none; top:5px; width:40px; height:30px; left:750px;  position: absolute;"> 
+         <input  value='{{stroke_width_color_predefined | asInteger}}'  style="border:none; top:5px; width:40px; height:30px; left:850px;  position: absolute;"> 
+      </template>
+      <template if='{{line_plot.line_list.length>0 && active_draw_object=="line"}}'>           
+        <input on-change="{{predefined_stroke_update}}" data-msg="{{line_plot.line_list[line_plot.active_line].stroke}}"  type="color" value='{{line_plot.line_list[line_plot.active_line].stroke}}'  style="border:none; top:5px; width:40px; height:30px; left:750px;  position: absolute;"> 
+      <input  on-change="{{predefined_stroke_with_update}}"  data-msg="{{line_plot.line_list[line_plot.active_line].stroke_width}}" value='{{line_plot.line_list[line_plot.active_line].stroke_width | asInteger}}'  style="border:none; top:5px; width:40px; height:30px; left:850px;  position: absolute;"> 
+      </template>
+      <template if='{{rect_plot.rect_list.length>0 && active_draw_object=="rectangle"}}'>           
+        <input on-change="{{predefined_stroke_update}}" data-msg="{{rect_plot.rect_list[rect_plot.active_rect].stroke}}"  type="color" value='{{rect_plot.rect_list[rect_plot.active_rect].stroke}}'  style="border:none; top:5px; width:40px; height:30px; left:750px;  position: absolute;"> 
+     <input  on-change="{{predefined_stroke_with_update}}"  data-msg="{{rect_plot.rect_list[rect_plot.active_rect].stroke_width}}" value='{{rect_plot.rect_list[rect_plot.active_rect].stroke_width | asInteger}}'  style="border:none; top:5px; width:40px; height:30px; left:850px;  position: absolute;"> 
+      </template>   
+      <template if='{{polyline_plot.polyline_list.length>0 && active_draw_object=="polyline"}}'>           
+        <input on-change="{{predefined_stroke_update}}" data-msg="{{polyline_plot.polyline_list[polyline_plot.active_polyline].stroke}}"  type="color" value='{{polyline_plot.polyline_list[polyline_plot.active_polyline].stroke}}'  style="border:none; top:5px; width:40px; height:30px; left:750px;  position: absolute;"> 
+     <input  on-change="{{predefined_stroke_with_update}}"  data-msg="{{polyline_plot.polyline_list[polyline_plot.active_polyline].stroke_width}}" value='{{polyline_plot.polyline_list[polyline_plot.active_polyline].stroke_width | asInteger}}'  style="border:none; top:5px; width:40px; height:30px; left:850px;  position: absolute;"> 
+      </template> 
+      <!--
+       <button id="draw_line" on-click="{{ribbon_draw_stroke}}" style="border:none; top:5px; width:90px; height:30px; left:700px; background-color:DeepSkyBlue ;  position: absolute;"> Stroke </button>         
+        <button id="draw_rect" on-click="{{ribbon_draw_stroke_width}}" style="border:none; top:5px; width:90px; height:30px; left:800px; background-color:DeepSkyBlue ;  position: absolute;"> Stroke-width </button>        
+       -->
+       <button id="draw_func_dialog_show" on-click="{{ribbon_draw_line_type}}" style="border:none; top:5px; width:90px; height:30px; left:900px; background-color:DeepSkyBlue ;  position: absolute;"> Line Type </button>   
+ </template>
+ 
+  <template if="{{RIBBON_FIGURE_STYLE==true}}"> 
+     <button on-click="{{frame_modify_style}}" style="border:none; top:5px; width:90px; height:30px; left:0px; background-color:DeepSkyBlue ;  position: absolute;"> Frame </button>     
+   <button on-click="{{axis_modify_style}}" style="border:none; top:5px; width:90px; height:30px; left:100px; background-color:DeepSkyBlue ;  position: absolute;"> Axis</button>   
+   <button on-click="{{data_set_manage}}" style="border:none; top:5px;width:90px; height:30px; left:200px; background-color:DeepSkyBlue ;  position: absolute;"> Data Set </button>  
+   <button on-click="{{lenged_box_style}}" style="border:none; top:5px; width:90px;height:30px;  left:300px; background-color:DeepSkyBlue;  position: absolute;"> Legend Box </button>   
+  <!--     <button on-click="{{email_figure_dialog}}" style="top:10px; left:850px; position: absolute;">  Email Figure  </button>    --> 
+   <button on-click="{{label_modify_style}}" style="border:none; top:5px; width:90px; height:30px; left:400px; background-color:DeepSkyBlue;  position: absolute;"> Text Label </button>    
+ </template>
+ 
+  <template if="{{RIBBON_ANALYSIS==true}}"> 
+     <button on-click="{{show_poly_fit_dialog}}" style="border:none; top:5px; width:140px; height:30px; left:0px; background-color:DeepSkyBlue ;  position: absolute;"> Linear Fit</button>     
+   <button on-click="{{show_poly_fit_dialog}}" style="border:none; top:5px; width:140px; height:30px; left:150px; background-color:DeepSkyBlue ;  position: absolute;"> Polynomial Fit</button>   
+   <button on-click="{{show_curve_fit}}" style="border:none; top:5px;width:140px; height:30px; left:300px; background-color:DeepSkyBlue ;  position: absolute;"> Curve Fit </button>  
+   <button on-click="{{show_diff_eq_para_est}}" style="border:none; top:5px; width:140px;height:30px;  left:450px; background-color:DeepSkyBlue;  position: absolute;"> Diff. Eq. Para. Est. </button>   
+ </template>   
+ </div> 
+ 
+ 
+ 
+  
+    <template repeat="{{data_plot in data_plot_list}}">
+    <template repeat="{{labels in data_plot.label_list}}">
+       <template if="{{labels.edit==true}}">   
+          <input on-change="{{hide_label_edit}}"  data-msg='{"line_idx":{{data_plot.label_list.indexOf(labels)}}, "plt_idx":{{data_plot_list.indexOf(data_plot)}}}' style="display:inline-block; position:absolute; z-index:3; top:{{labels.y-20}}px; left:{{labels.x}}px;" value="{{labels.text}}">
+       </template>
+    </template>
+    </template>    
+    
+    <div id="emailcontent" style="width:100%; height:100%; overflow:auto; ">
+         
+    <svg id="container" left="0px" top="0px" width="200%" height="300%" position="absolute">    
+    
+    <template repeat="{{data_plot in data_plot_list}}">    
+    
+    <!--
+   <template if="{{data_plot.plot_mode_show==true}}">   
+        <path fill="green" on-click="{{plt_show_setting}}" stroke="green" d=" M31.229,17.736c0.064-0.571,0.104-1.148,0.104-1.736s-0.04-1.166-0.104-1.737l-4.377-1.557c-0.218-0.716-0.504-1.401-0.851-2.05l1.993-4.192c-0.725-0.91-1.549-1.734-2.458-2.459l-4.193,1.994c-0.647-0.347-1.334-0.632-2.049-0.849l-1.558-4.378C17.165,0.708,16.588,0.667,16,0.667s-1.166,0.041-1.737,0.105L12.707,5.15c-0.716,0.217-1.401,0.502-2.05,0.849L6.464,4.005C5.554,4.73,4.73,5.554,4.005,6.464l1.994,4.192c-0.347,0.648-0.632,1.334-0.849,2.05l-4.378,1.557C0.708,14.834,0.667,15.412,0.667,16s0.041,1.165,0.105,1.736l4.378,1.558c0.217,0.715,0.502,1.401,0.849,2.049l-1.994,4.193c0.725,0.909,1.549,1.733,2.459,2.458l4.192-1.993c0.648,0.347,1.334,0.633,2.05,0.851l1.557,4.377c0.571,0.064,1.148,0.104,1.737,0.104c0.588,0,1.165-0.04,1.736-0.104l1.558-4.377c0.715-0.218,1.399-0.504,2.049-0.851l4.193,1.993c0.909-0.725,1.733-1.549,2.458-2.458l-1.993-4.193c0.347-0.647,0.633-1.334,0.851-2.049L31.229,17.736zM16,20.871c-2.69,0-4.872-2.182-4.872-4.871c0-2.69,2.182-4.872,4.872-4.872c2.689,0,4.871,2.182,4.871,4.872C20.871,18.689,18.689,20.871,16,20.871z" />
+    </template>     
+    -->
+    
+    <g transform="translate({{data_plot.translate_x}}, {{data_plot.translate_y}}) scale({{data_plot.scale}})">    
+    <rect on-contextmenu="{{show_contextmenu}}" pointer-events="visible" on-click="{{show_frame_ctrl_pt}}" data-msg='{"obj_type":"frame","plt_idx":{{data_plot_list.indexOf(data_plot)}}}' x="{{data_plot.frame.left}}" y="{{data_plot.frame.top}}" width="{{data_plot.frame.width}}" height="{{data_plot.frame.height}}" style="fill:none;stroke-width:2;stroke:black" />
+            
+    <template repeat="{{yy in data_plot.y_marker.marker}}">
+    <g on-contextmenu="{{show_contextmenu}}" data-msg='{"obj_type":"range","plt_idx":{{data_plot_list.indexOf(data_plot)}}}'>
+    <text x="{{data_plot.y_marker.position}}" y="{{yy.position+5}}" fill="{{data_plot.y_marker.tick_stroke}}" font-size="{{data_plot.y_marker.font_size}}">{{yy.text}}</text>
+    <line x1="{{data_plot.frame.left}}" y1="{{yy.position}}" x2="{{data_plot.frame.left+data_plot.y_marker.tick_length}}" y2="{{yy.position}}" style="stroke:{{data_plot.y_marker.tick_stroke}};stroke-width:{{data_plot.y_marker.tick_stroke_width}}" />
+    </g>
+    </template>  
+    
+    <!--
+    <text on-click="{{show_edit_label}}" on-doubleclick="{{show_edit_label}}"  x="{{data_plot.y_label.x}}" y="{{data_plot.y_label.y+30}}" fill="black" font-size="{{data_plot.y_label.font_size}}" transform="rotate(270, {{data_plot.y_label.x}}, {{data_plot.y_label.y+30}})">{{data_plot.y_label.text}}</text> 
+    -->
+   
+   
+    <template repeat="{{xx in data_plot.x_marker.marker}}">
+    <g on-contextmenu="{{show_contextmenu}}" data-msg='{"obj_type":"range","plt_idx":{{data_plot_list.indexOf(data_plot)}}}'>
+    <text x="{{xx.position-15}}" y="{{data_plot.x_marker.position}}" fill="{{data_plot.x_marker.tick_stroke}}" font-size="{{data_plot.x_marker.font_size}}">{{xx.text}}</text>
+    <line x1="{{xx.position}}" y1="{{data_plot.frame.top+data_plot.frame.height}}" x2="{{xx.position}}" y2="{{data_plot.frame.top+data_plot.frame.height-data_plot.x_marker.tick_length}}" style="stroke:{{data_plot.x_marker.tick_stroke}};stroke-width:{{data_plot.x_marker.tick_stroke_width}}" />
+    </g>
+    </template>  
+    
+    <!--
+    <text x="{{data_plot.x_label.x-30}}" y="{{data_plot.x_label.y}}" fill="black" font-size="{{data_plot.x_label.font_size}}">{{data_plot.x_label.text}}</text> 
+    <text x="{{data_plot.plot_title.x-30}}" y="{{data_plot.plot_title.y}}" fill="black" font-size="{{data_plot.plot_title.font_size}}">{{data_plot.plot_title.text}}</text> 
+    -->
+
+    <template repeat="{{labels in data_plot.label_list}}">
+       <text on-contextmenu="{{show_contextmenu}}" on-click="{{label_click}}" on-doubleclick="{{show_label_edit}}" 
+       data-msg='{"obj_type":"label", "label_idx":{{data_plot.label_list.indexOf(labels)}}, "plt_idx":{{data_plot_list.indexOf(data_plot)}}}'  
+       x="{{labels.x}}" y="{{labels.y}}" fill="{{labels.color}}" font-size="{{labels.font_size}}" 
+       font-weight="{{labels.font_weight}}" font-style="{{labels.font_style}}" text-decoration="{{labels.text_decoration}}"
+       transform="rotate({{labels.rotation_degree}}, {{labels.x}}, {{labels.y}})">{{labels.text}}</text> 
+    </template>
+
+    
+    <!--
+    <text x="200" y="200" font-size="50"> {{data_plot.label_list[0].text}} </text>  
+    <text x="200" y="300" font-size="50"> {{data_plot.label_list[1].text}} </text>      
+    <text x="200" y="400" font-size="50"> {{data_plot.label_list[2].text}} </text>           
+    
+    
+    <template repeat="{{xxxx in data_plot.label_list}}">
+        <text x="200" y="200" font-size="50"> {{xxxx.text}} </text>            
+    </template>
+    -->
+    
+    
+    <template if='{{data_plot.plot_type=="symbol_2d"||data_plot.plot_type=="linesymbol_2d"}}'>   
+    <template repeat="{{data in data_plot.data_set.symbol_set}}">
+    <circle cx="{{data.x}}" cy="{{data.y}}" r="{{data_plot.data_set.symbol_style.radius}}" stroke="{{data_plot.data_set.symbol_style.stroke}}" stroke-width="{{data_plot.data_set.symbol_style.stroke_width}}" fill="{{data_plot.data_set.symbol_style.fill}}" />
+    </template>
+    </template>
+    
+     <template if='{{data_plot.plot_type=="rectangular"}}'>   
+    <template repeat="{{data in data_plot.data_set.symbol_set}}">
+    <rect x="{{data.x-3}}" y="{{data.y}}" width="6" height="{{data_plot.frame.top+data_plot.frame.height-data.y}}" style="fill:rgb(0,0,255);stroke-width:1;stroke:rgb(0,0,0)" />
+    </template>
+    </template>
+    
+    <template if='{{data_plot.plot_type=="line_2d"||data_plot.plot_type=="linesymbol_2d"}}'>   
+    <template repeat="{{f in data_plot.data_set.line_set}}">
+    <line x1="{{f.start_x}}" y1="{{f.start_y}}" x2="{{f.end_x}}" y2="{{f.end_y}}" stroke="{{data_plot.data_set.line_style.stroke}}" stroke-width="{{data_plot.data_set.line_style.stroke_width}}" fill="{{data_plot.data_set.line_style.fill}}"/>  
+    </template>
+    </template>    
+    
+    <template if='{{data_plot.plot_type=="overlay"}}'>
+      <template repeat="{{datass in data_plot.data_set_list_overlay}}"> 
+      
+         <g transform="translate({{data_plot.legend_box_trans_x}}, {{data_plot.legend_box_trans_y}})">
+         <text x="{{datass.text_legend.x+40}}" y="{{datass.text_legend.y+30}}" fill="black" font-size="{{datass.text_legend.font_size}}" >{{datass.text_legend.text}}</text> 
+             <template if='{{datass.symbol_type=="circle"}}'>
+                 <circle cx="{{datass.text_legend.x+20}}" cy="{{datass.text_legend.y+25}}" r="{{datass.symbol_style.radius}}" stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />
+             </template>
+             <template if='{{datass.symbol_type=="rectangle" || datass.symbol_type=="square" || datass.symbol_type=="triangle"}}'>
+                 <polygon transform="translate({{datass.text_legend.x+20-datass.symbol_style.radius/2}}, {{datass.text_legend.y+25-datass.symbol_style.radius/2}}) scale({{datass.symbol_style.radius}})" points='{{symbol_style_map[datass.symbol_type]}}' stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />
+             </template>
+             <template if='{{datass.symbol_type=="cross"}}'>
+                 <polyline transform="translate({{datass.text_legend.x+20-5}}, {{datass.text_legend.y+25-5}}) scale({{datass.symbol_style.radius/5}})" points='{{symbol_style_map["cross"]}}' stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />
+             </template>
+             <!--    <circle cx="{{datass.text_legend.x+20}}" cy="{{datass.text_legend.y+25}}" r="{{datass.symbol_style.radius}}" stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />   -->
+          <line x1="{{datass.text_legend.x+10}}" y1="{{datass.text_legend.y+25}}" x2="{{datass.text_legend.x+30}}" y2="{{datass.text_legend.y+25}}" stroke="{{datass.line_style.stroke}}" stroke-width="{{datass.line_style.stroke_width}}" fill="{{datass.line_style.fill}}"/>  
+         </g>
+         
+         <g on-contextmenu="{{show_contextmenu}}" data-msg='{"data_idx":{{data_plot.data_set_list_overlay.indexOf(datass)}}, "plt_idx":{{data_plot_list.indexOf(data_plot)}}, "obj_type":"data_set"}'>
+         <template if='{{datass.plot_type=="symbol_2d"||datass.plot_type=="linesymbol_2d"}}'>   
+         <template repeat="{{data in datass.symbol_set}}">
+             <g on-click="{{data_reader_value}}"  data-msg="{{datass.symbol_set.indexOf(data)}}">
+             <template if='{{datass.symbol_type=="circle"}}'>
+                 <circle cx="{{data.x}}" cy="{{data.y}}" r="{{datass.symbol_style.radius}}" stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />
+             </template>
+             <template if='{{datass.symbol_type=="rectangle" || datass.symbol_type=="square" || datass.symbol_type=="triangle"}}'>
+                 <polygon transform="translate({{data.x-datass.symbol_style.radius/2}}, {{data.y-datass.symbol_style.radius/2}}) scale({{datass.symbol_style.radius}})" points='{{symbol_style_map[datass.symbol_type]}}' stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />
+             </template>
+             <template if='{{datass.symbol_type=="cross"}}'>
+                 <polyline transform="translate({{data.x-5}}, {{data.y-5}}) scale({{datass.symbol_style.radius/5}})" points='{{symbol_style_map["cross"]}}' stroke="{{datass.symbol_style.stroke}}" stroke-width="{{datass.symbol_style.stroke_width}}" fill="{{datass.symbol_style.fill}}" />
+             </template>
+             </g>
+         </template>      
+         </template>         
+               <!--   <template if='{{datass.line_type=="solid_line"}}'>     </template>  -->                  
+         <template if='{{datass.plot_type=="line_2d"||datass.plot_type=="linesymbol_2d"}}'>   
+         <template repeat="{{f in datass.line_set}}">             
+                <line  stroke-dasharray="{{dash_array_map[datass.line_type]}}"   x1="{{f.start_x}}" y1="{{f.start_y}}" x2="{{f.end_x}}" y2="{{f.end_y}}" stroke="{{datass.line_style.stroke}}" stroke-width="{{datass.line_style.stroke_width}}" fill="{{datass.line_style.fill}}"/>  
+         </template>
+         </template>
+        </g>
+        
+ <!--   <template if="{{datass.show_fitting==true}}">     -->   
+       <template repeat="{{f in datass.fit_line_set}}">
+          <line x1="{{f.start_x}}" y1="{{f.start_y}}" x2="{{f.end_x}}" y2="{{f.end_y}}" style="stroke:rgb(255,0,0);stroke-width:3" fill="red"/>  
+       </template>    
+ <!--   </template>        -->  
+         
+      </template>
+    </template>  
+    
+    <template if='{{data_plot.plot_type=="2d_heat_map"}}'>
+       <template repeat="{{rect in data_plot.heat_map_data}}">
+           <path fill="{{color_map[rect.color]}}" d="{{rect.path}}" />       <!-- rgb({{(rect.color/256).toInt()}},{{(rect.color/256).toInt()}},{{rect.color%256}})-rgb(0,0,{{rect.color}}) -->
+       </template>
+    </template>
+    
+    
+     <template if='{{data_plot.plot_type=="2d_heat_map_interpo"}}'>
+       <template repeat="{{rect in data_plot.heat_map_interpo}}">
+         <rect x="{{rect.x}}" y="{{rect.y}}" width="6" height="6" fill="{{color_map[rect.color]}}"/>
+       </template>
+    </template>
+    
+  
+  <template if='{{data_plot.plot_type=="geography"}}'>
+   <g transform="translate(100, 100)">
+    <template repeat="{{state in data_plot.state_list}}">
+    <path fill="{{data_plot.color_map[state.name]}}" stroke="black" d="{{state.path}}" />
+    </template>
+    </g>   
+  </template>
+    
+    <!--
+    <template if="{{data_plot.show_fitting==true}}">      
+    <template repeat="{{f in data_plot.fit_line_set}}">
+    <line x1="{{f.start_x}}" y1="{{f.start_y}}" x2="{{f.end_x}}" y2="{{f.end_y}}" style="stroke:rgb(255,0,0);stroke-width:3" fill="red"/>  
+    </template>    
+    </template> 
+    
+    -->
+    
+     <template if="{{data_plot.frame.show_control_point==true && active_plot==data_plot_list.indexOf(data_plot)}}">
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="0" cx="{{data_plot.frame.left}}" cy="{{data_plot.frame.top}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="1" cx="{{data_plot.frame.left}}" cy="{{data_plot.frame.top+data_plot.frame.height/2}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="2" cx="{{data_plot.frame.left}}" cy="{{data_plot.frame.top+data_plot.frame.height}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="3" cx="{{data_plot.frame.left+data_plot.frame.width/2}}" cy="{{data_plot.frame.top+data_plot.frame.height}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="4" cx="{{data_plot.frame.left+data_plot.frame.width}}" cy="{{data_plot.frame.top+data_plot.frame.height}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="5" cx="{{data_plot.frame.left+data_plot.frame.width}}" cy="{{data_plot.frame.top+data_plot.frame.height/2}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="6" cx="{{data_plot.frame.left+data_plot.frame.width}}" cy="{{data_plot.frame.top}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_frame_move}}" data-msg="7" cx="{{data_plot.frame.left+data_plot.frame.width/2}}" cy="{{data_plot.frame.top}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    </template>
+        
+    </g>   
+    
+    </template>   <!-- END of    <template repeat="{{data_plot in data_plot_list}}"> --> 
+        
+    <template repeat="{{f in line_plot.line_list}}">
+    <line on-click="{{show_ctrl_pt_line}}" data-msg="{{f.num_line}}" x1="{{f.start_x}}" y1="{{f.start_y}}" x2="{{f.end_x}}" y2="{{f.end_y}}" style="stroke:{{f.stroke}}; stroke-width:{{f.stroke_width}}" />  
+    </template>
+    
+    <template if='{{line_plot.show_control_point==true && active_draw_object=="line"}}'>
+    <circle on-mousedown="{{circle_start_move}}" cx="{{line_plot.line_list[line_plot.active_line].start_x}}" cy="{{line_plot.line_list[line_plot.active_line].start_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_end_move}}" cx="{{line_plot.line_list[line_plot.active_line].end_x}}" cy="{{line_plot.line_list[line_plot.active_line].end_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    </template>
+    
+    <template repeat="{{rect in rect_plot.rect_list}}">
+    <rect on-click="{{show_ctrl_pt_rect}}" data-msg="{{rect.num_rect}}"  x="{{rect.start_x}}" y="{{rect.start_y}}" width="{{rect.end_x-rect.start_x}}" height="{{rect.end_y-rect.start_y}}" style="fill:{{rect.fill}};stroke-width:{{rect.stroke_width}};stroke:{{rect.stroke}}"/>
+    </template>
+    
+    <template if='{{rect_plot.show_control_point==true && active_draw_object=="rectangle"}}'>
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="0" cx="{{rect_plot.rect_list[rect_plot.active_rect].start_x}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].start_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="1" cx="{{rect_plot.rect_list[rect_plot.active_rect].start_x}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].start_y/2+rect_plot.rect_list[rect_plot.active_rect].end_y/2}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="2" cx="{{rect_plot.rect_list[rect_plot.active_rect].start_x}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].end_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="3" cx="{{rect_plot.rect_list[rect_plot.active_rect].start_x/2+rect_plot.rect_list[rect_plot.active_rect].end_x/2}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].end_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="4" cx="{{rect_plot.rect_list[rect_plot.active_rect].end_x}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].end_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="5" cx="{{rect_plot.rect_list[rect_plot.active_rect].end_x}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].start_y/2+rect_plot.rect_list[rect_plot.active_rect].end_y/2}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="6" cx="{{rect_plot.rect_list[rect_plot.active_rect].end_x}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].start_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    <circle on-mousedown="{{circle_rect_move}}" data-msg="7" cx="{{rect_plot.rect_list[rect_plot.active_rect].start_x/2+rect_plot.rect_list[rect_plot.active_rect].end_x/2}}" cy="{{rect_plot.rect_list[rect_plot.active_rect].start_y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    </template>
+    
+    
+    <template repeat="{{polyline in polyline_plot.polyline_list}}">        
+    <template if='{{polyline.polyline_or_polygon=="polyline"}}'>      
+         <polyline on-click="{{show_ctrl_pt_polyline}}" data-msg="{{polyline_plot.polyline_list.indexOf(polyline)}}" 
+            points="{{polyline.points}}"   style="stroke-width:{{polyline.stroke_width}};stroke:{{polyline.stroke}}; fill:none;"/>
+     </template>     
+     <template if='{{polyline.polyline_or_polygon=="polygon"}}'>
+         <polygon on-click="{{show_ctrl_pt_polyline}}" data-msg="{{polyline_plot.polyline_list.indexOf(polyline)}}" 
+            points="{{polyline.points}}"   style="stroke-width:{{polyline.stroke_width}};stroke:{{polyline.stroke}}; fill:none;"/>
+     </template>     
+    </template>
+    
+    
+    <template if='{{polyline_plot.show_control_point==true && active_draw_object=="polyline"}}'>
+    <template repeat="{{pts in polyline_plot.polyline_list[polyline_plot.active_polyline].point_set}}">
+       <circle on-mousedown="{{circle_polyline_move}}" data-msg="{{polyline_plot.polyline_list[polyline_plot.active_polyline].point_set.indexOf(pts)}}" cx="{{pts.x}}" cy="{{pts.y}}" r="5" stroke="red" stroke-width="4" fill="red" />
+    </template>
+    </template>
+    
+    
+    <template repeat="{{f in func_plot.plot_line_set}}">
+    <line x1="{{f.start_x}}" y1="{{f.start_y}}" x2="{{f.end_x}}" y2="{{f.end_y}}" style="stroke:orange;stroke-width:3" fill="orange"/>  
+    </template>  
+    
+    
+    <template if="{{zoom_control.ZOOM_IN_STARTED==true}}">  
+         <rect x="{{zoom_control.temp_range.start_x}}" y="{{zoom_control.temp_range.start_y}}" width="{{zoom_control.temp_range.end_x-zoom_control.temp_range.start_x}}" height="{{zoom_control.temp_range.end_y-zoom_control.temp_range.start_y}}"  style="fill:none;stroke:red;stroke-width:3;" stroke-dasharray="5, 5"    />
+   </template>  
+   
+       <template if="{{screen_reader.data_reader_enable==true && screen_reader.data_clicked==true}}">  
+          <polyline transform="translate({{screen_reader.x_value_scaled-20}}, {{screen_reader.y_value_scaled-20}}) " points="20,20 20,0 20,40 20,20 0,20 40,20" stroke="red" stroke-width="3" fill="red" />          
+       </template>
+   
+   <template if='{{active_draw_object=="text"}}'>   
+     <rect x="{{text_select_rect_left}}" y="{{text_select_rect_top}}" width="{{text_select_rect_width}}" height="{{text_select_rect_height}}" style="fill:none;stroke-width:1;stroke:rgb(0,255,0)" />
+   </template>
+    
+    </svg>
+    
+    </div>
+    
+    <!--     {{ctxmenu_show.x_pos}}   {{ctxmenu_show.y_pos}}   -->
+    
+  <template if="{{ctxmenu_show.contextmenu_show==true}}">     
+     <div id="header" style="margin:0; padding:0; top:{{ctxmenu_show.y_pos}}px; left:{{ctxmenu_show.x_pos}}px; ">
+     <ul id="nav" style="margin:0; padding:0; top:{{ctxmenu_show.y_pos}}px; left:{{ctxmenu_show.x_pos}}px; "> 
+      <template if='{{ctxmenu_show.menu_type=="data_set"}}'>
+      <li ><a on-click="{{data_set_manage}}"> Manage Data Set</a></li>
+      <li ><a on-click="{{data_set_mod_sty}}"> Modify Style</a></li>
+      <li ><a id="menu_class"> Analysis</a>
+      <ul>
+        <li><a on-click="{{show_poly_fit_dialog}}">Linear Fit</a></li>
+        <li><a on-click="{{show_poly_fit_dialog}}">Polynomial Fit</a></li>
+        <li> <a on-click="{{show_curve_fit}}">Curve Fit</a></li>
+        <li> <a on-click="{{show_diff_eq_para_est}}">Diff. Eq. Para. Est. </a></li>      
+      </ul>     
+      </li>
+      </template>        
+      <template if='{{ctxmenu_show.menu_type=="frame"}}'>
+      <li ><a on-click="{{frame_modify_style}}"> Modify Frame</a></li>
+      </template>        
+      <template if='{{ctxmenu_show.menu_type=="range"}}'>
+      <li ><a on-click="{{axis_modify_style}}"> Modify Axis</a></li>
+      </template>        
+      <template if='{{ctxmenu_show.menu_type=="label"}}'>
+       <li ><a on-click="{{label_modify_style}}"> Label Style</a></li>
+      </template>           
+      </ul><!-- nav --> 
+   </div><!-- header -->  
+  </template>   
+
+
+  
+  <template if="{{screen_reader.show==true}}">
+  <div style="margin:0; padding:0; top:100px; left:900px; height:25px; width:250px; position: absolute; border-style:solid; background-color:#CCFFFF; ">     
+  <label> X = {{screen_reader.x_value}}, Y = {{screen_reader.y_value}} </label>
+  <button style="left:200px; position:absolute;" on-click="{{hide_screen_reader}}"> Hide </button>
+  </div>
+  </template>
+  
+  <!--
+  <template if="{{screen_reader.show==true}}">
+  <div style="margin:0; padding:0; top:100px; left:900px; height:25px; width:250px; position: absolute; border-style:solid; background-color:#CCFFFF; ">     
+  <label> X = {{screen_reader.x_value}}, Y = {{screen_reader.y_value}} </label>
+  <button style="left:200px; position:absolute;" on-click="{{hide_screen_reader}}"> Hide </button>
+  </div>
+  </template>
+  -->
+  
+ 
+    
+    
+        <x-dialog id="dialog" class="dialog">
+      <style no-shim>
+        .dialog {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          overflow: auto;
+          background: white;
+          padding:30px 42px;
+          outline: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        #dialog {
+          width: 800px;
+          height: 600px;
+        }
+      </style>      
+      <!--
+      <button style="top:10px; left:740px; position:absolute;" core-overlay-toggle> Close </button>      
+      -->
+
+<!--
+ <template if="{{FIT_SETTING_SHOW==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:600px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <p> <label>Fit function:  y=</label> <input value="{{fit_setting.fit_fuction}}"> </p>  
+  <template repeat="{{name in fit_setting.para_name}}">
+  <p> <label>Paramter to fit:</label> <input style="width:50px;" value="{{name}}">   
+  <label>Guess initial value:</label> <input style="width:50px;" value="{{fit_setting.para_value[fit_setting.para_name.indexOf(name)] | asDouble}}"> 
+  <button on-click="{{fit_set_del_para}}"  data-msg="{{fit_setting.para_name.indexOf(name)}}">Delete parameter</button>  
+  </p>
+  </template>
+  <button on-click="{{fit_set_add_para}}">Add parameter</button>    
+  <p> <label>Range to Fit: x_min</label> <input style="width:50px;" value="{{fit_setting.x_min | asDouble}}"> 
+  <label>x_max</label> <input style="width:50px;" value="{{fit_setting.x_max | asDouble}}"> </p>
+  <p> <label>Number of points for plot</label> <input style="width:50px;" value="{{fit_setting.num_of_point_for_plot | asInteger}}"> </p>  
+  <button on-click="{{do_curve_fit}}"> Do Curve Fit </button>  
+  <button on-click="{{show_curve_fit_cancel}}"> Cancel</button>  
+  </div> 
+  </div>   
+  </template>
+  
+  
+    <template if="{{POLY_FIT_SET_SHOW==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:200px; width:400px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <p> <label>Polynomial Order: </label> <input value="{{poly_fit_setting.poly_order | asInteger}}"> </p>    
+  <p> <label>Range to Fit: x_min</label> <input style="width:50px;" value="{{poly_fit_setting.x_min | asDouble}}"> 
+  <label>x_max</label> <input style="width:50px;" value="{{poly_fit_setting.x_max | asDouble}}"> </p>
+  <p> <label>Number of points for plot</label> <input style="width:50px;" value="{{poly_fit_setting.num_of_point_for_plot | asInteger}}"> </p>  
+  
+  <button on-click="{{do_polynomial_fit}}"> Do Polynomial Fit </button>  
+  <button on-click="{{show_poly_fit_cancel}}"> Cancel</button>  
+  </div> 
+  </div>   
+  </template>
+  
+  
+  
+  <template if="{{DIFF_EQ_PARA_EST==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:600px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <p> <label>Differential equation:  dy/dx=</label> <input value="{{fit_setting.fit_fuction}}"> </p>  
+  <template repeat="{{name in fit_setting.para_name}}">
+  <p> <label>Paramter to estimate:</label> <input style="width:50px;" value="{{name}}">   
+  <label>Guess initial value:</label> <input style="width:50px;" value="{{fit_setting.para_value[fit_setting.para_name.indexOf(name)] | asDouble}}">
+  <button on-click="{{fit_set_del_para}}"  data-msg="{{fit_setting.para_name.indexOf(name)}}">Delete parameter</button>   </p>
+  </template>
+  <button on-click="{{fit_set_add_para}}">Add parameter</button>    
+  <p> <label>Range to Fit: x_min</label> <input style="width:50px;" value="{{fit_setting.x_min | asDouble}}"> 
+  <label>x_max</label> <input style="width:50px;" value="{{fit_setting.x_max | asDouble}}"> </p>  -->
+<!--  <p> <label>Number of points for plot</label> <input style="width:50px;" value="{{fit_setting.num_of_point_for_plot | asInteger}}"> </p>   -->
+<!--  <button on-click="{{do_diff_eq_para_est}}"> Estimate Parameter </button>  
+  <button on-click="{{diff_eq_para_est_cancel}}"> Cancel</button>  
+  </div> 
+  </div>   
+  </template>  
+  
+  -->
+  
+  
+  
+    <template if="{{EMAIL_FIGURE_DIALOG==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:600px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <p>   <a _href="{{email_content}}"  target="_blank"> Send email with Gmail (if logged in) or other email client</a>  </p>
+  <p> <button on-click="{{email_figure_cancel}}"> Cancel</button>   </p>
+  </div> 
+  </div>   
+  </template>  
+  
+  
+ <template if="{{EMBED_SHARED_DIALOG==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:600px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <label> Generate Link for: </label>
+  <p> <button on-click="{{generate_static_link}}"> Static figure </button>  
+  <!-- <button on-click="{{generate_embed_link}}"> Embeded purpose figure</button>   -->
+  <button on-click="{{generate_editable_link}}"> Fully edittable figure </button>    </p>
+  
+   <p> <label> Share Link:  </label>  </p>
+   <textarea cols="50" rows="3" value="{{share_link}}"> </textarea>  
+  
+   <p> <label> Embed Link:  </label>   </p>
+   <textarea cols="50" rows="3" value="{{share_link}}"> </textarea>  
+   
+   <p>   <a _href="{{email_content}}"  target="_blank"> Email this link with Gmail (if logged in) or other email client</a>  </p>
+   <p>   <a _href="{{email_content}}"  target="_blank"> Create slides with generated figure (link to slides.com)</a>  </p>
+     
+  <p> <button on-click="{{embed_share_cancel}}"> Cancel</button>    </p>
+  </div> 
+  </div>   
+  </template>  
+  
+  
+  
+  
+    <template if="{{func_plot.show_plotfunc_dialog==true}}">  
+      <div style="margin:0; padding:0; top:30px; left:30px;   ">     
+  <p> <label>Plot function:</label> <input value="{{func_plot.plot_fuction}}"> </p>
+  <p> <label>Range to Fit: x_min</label> <input value="{{func_plot.x_min | asDouble}}"> 
+  <label>x_max</label> <input value="{{func_plot.x_max | asDouble}}"> </p>
+  <p> <label>Number of points for plot</label> <input value="{{func_plot.num_of_point_for_plot | asInteger}}"> </p>  
+  <button on-click="{{do_plot_function}}"> Plot Function </button>  
+  <button on-click="{{plot_function_cancel}}"> Cancel</button>  
+    </div>       
+    </template>
+
+
+
+   <template repeat="{{data_plot in data_plot_list}}">   
+   <template if="{{active_plot==data_plot_list.indexOf(data_plot) && PLOT_SETTING_SHOW==true}}">     
+   <div style="margin:0; padding:0; top:50px; height:400px; width:700px; position: absolute;  ">
+      <button style='top:20px; left:50px;  position:absolute; background-color:{{PLOT_SETTING_FRAME==true ? "red" : "white"}};' on-click="{{plt_setting_frame}}"> Frame </button>
+      <button style='top:20px; left:140px;  position:absolute;background-color:{{PLOT_SETTING_AXIS==true ? "red" : "white"}};' on-click="{{plt_setting_axis}}"> Axis </button>
+      <button style='top:20px; left:220px;  position:absolute;background-color:{{PLOT_SETTING_DATA_MANAGE==true ? "red" : "white"}};' on-click="{{plt_setting_data_manage}}"> Data Manage</button>       
+      <button style='top:20px; left:350px;  position:absolute;background-color:{{PLOT_SETTING_DATA_STYLE==true ? "red" : "white"}};' on-click="{{plt_setting_data_style}}"> Data Style</button>  
+      <button style='top:20px; left:450px;  position:absolute;background-color:{{PLOT_SETTING_LABEL_STYLE==true ? "red" : "white"}};' on-click="{{plt_setting_label_style}}"> Label Style</button>    
+      <button style='top:20px; left:550px;  position:absolute;background-color:{{PLOT_SETTING_LEGEND_BOX==true ? "red" : "white"}};' on-click="{{plt_setting_legend_box}}"> Legend Box</button>    
+       <div style="top:50px; left:50px; position:absolute;">    
+          
+      <template if="{{PLOT_SETTING_FRAME==true}}"> 
+      <div style="top:30px; left:50px; width:500px; height:200px; background-color:Aquamarine; position:absolute;">
+       Frame Parameters: 
+       <p>  <label> Left </label>      <input on-change="{{adjust_frame_change}}"  value="{{data_plot.frame.left | asInteger}}">  </p>
+       <p>  <label> Top </label>      <input on-change="{{adjust_frame_change}}" value="{{data_plot.frame.top | asInteger}}">  </p>
+       <p>  <label> Width </label>      <input on-change="{{adjust_frame_change}}" value="{{data_plot.frame.width | asInteger}}">  </p>
+       <p>  <label> Height </label>      <input on-change="{{adjust_frame_change}}" value="{{data_plot.frame.height | asInteger}}">  </p>
+     </div>
+      </template>
+            
+      <template if="{{PLOT_SETTING_AXIS==true}}">  
+       <div style="top:50px; left:30px; width:500px; height:150px; background-color:Aquamarine; position:absolute;">
+       X Axis Parameters:
+       <p>  <label> Axis min </label>      <input style="width:100px;" on-change="{{adjust_axis_change}}" value="{{data_plot.x_range_min | asDouble}}"> 
+        <label> Axis max </label>      <input style="width:100px;" on-change="{{adjust_axis_change}}" value="{{data_plot.x_range_max | asDouble}}">  
+        <label> Axis step </label>      <input style="width:100px;" on-change="{{adjust_axis_change}}" value="{{data_plot.x_step | asDouble}}">  </p>
+       <p> Tick Color: <input  type="color" value="{{data_plot.x_marker.tick_stroke}}">            
+           Tick Name Fontsize: <input  style="width:100px;" value="{{data_plot.x_marker.font_size | asInteger}}">  </p>
+        <p> Tick Length: <input style="width:100px;"  value="{{data_plot.x_marker.tick_length | asInteger}}"> 
+        Tick Thickness: <input  style="width:100px;" value="{{data_plot.x_marker.tick_stroke_width | asInteger}}">      </p>
+       </div>
+       
+       <div style="top:220px; left:30px; width:500px; height:150px; background-color:pink; position:absolute;">
+       Y Axis Parameters:
+       <p>  <label> Axis min </label>      <input style="width:100px;" on-change="{{adjust_axis_change}}" value="{{data_plot.y_range_min | asDouble}}">  
+        <label> Axis max </label>      <input style="width:100px;" on-change="{{adjust_axis_change}}" value="{{data_plot.y_range_max | asDouble}}"> 
+         <label> Axis step </label>      <input style="width:100px;" on-change="{{adjust_axis_change}}" value="{{data_plot.y_step | asDouble}}">  </p>
+            <p> Tick Color: <input  type="color" value="{{data_plot.y_marker.tick_stroke}}">            
+           Tick Name Fontsize: <input style="width:100px;"  value="{{data_plot.y_marker.font_size | asInteger}}">  </p>
+        <p> Tick Length: <input style="width:100px;"  value="{{data_plot.y_marker.tick_length | asInteger}}"> 
+        Tick Thickness: <input style="width:100px;"  value="{{data_plot.y_marker.tick_stroke_width | asInteger}}">      </p>     
+      </div>
+      </template>      
+      
+      <template if="{{PLOT_SETTING_DATA_MANAGE==true}}">  
+         <div style="top:50px; left:50px; width:500px; height:300px;  position:absolute;">
+         <template repeat="{{datass in data_plot.data_set_list_overlay}}"> 
+          <p style="background-color:orange;">   <label style="width:100px; height:25px; display:inline-block; "> {{datass.text_legend.text}} </label>  
+          <button on-click="{{delete_data_set}}" data-msg='{"data_idx":{{data_plot.data_set_list_overlay.indexOf(datass)}},"plt_idx":{{data_plot_list.indexOf(data_plot)}}}'> Delete Data Set</button>  
+          <button on-click="{{delete_data_fitting}}" data-msg='{"data_idx":{{data_plot.data_set_list_overlay.indexOf(datass)}},"plt_idx":{{data_plot_list.indexOf(data_plot)}}}'> Delete Fitting</button> </p>
+         </template>
+         <button> Add Data Set</button>
+         </div>
+      </template>      
+      
+      <template if="{{PLOT_SETTING_DATA_STYLE==true}}">  
+        <div style="top:30px; left:0px; width:50px; position:absolute;">
+         <template repeat="{{datass in data_plot.data_set_list_overlay}}"> 
+            <p>   <button on-click="{{change_data_set}}"  data-msg="{{data_plot.data_set_list_overlay.indexOf(datass)}}" 
+             style='width:100px; height:25px; background-color:{{data_plot.data_set_list_overlay.indexOf(datass)==active_data ? "red": "white"}}'> {{datass.text_legend.text}} </button> </p>
+         </template>      
+       </div>      
+        <div style="top:0px; left:120px; width:500px; position:absolute;">
+          <template repeat="{{datass in data_plot.data_set_list_overlay}}"> 
+            <template if="{{active_data==data_plot.data_set_list_overlay.indexOf(datass)}}">     
+         <template if='{{datass.plot_type=="symbol_2d"||datass.plot_type=="linesymbol_2d"}}'>   
+         <div style="top:30px; left:0px; width:500px; height:100px; position:absolute; background-color:Aquamarine;">
+           <p>     Symbol type:           
+             <select value="{{datass.symbol_type}}"  >   <!--on-change="{{symbol_type_change}}"  -->
+             <option value="circle">Circle</option>
+             <option value="square">Square</option>
+             <option value="cross">Cross</option>
+             <option value="rectangle">Rectangle</option>
+             <option value="triangle">Triangle</option>
+             </select>            </p>     
+             <p>Symbol Size: <input style="width:80px" value="{{datass.symbol_style.radius | asInteger}}">  
+             Fill Color: <input type="color" value="{{datass.symbol_style.fill}}">
+             Stroke Color: <input type="color" value="{{datass.symbol_style.stroke}}">          </p>                   
+         </div>
+         </template>
+          <div style="top:150px; left:0px; width:500px; height:50px; position:absolute; background-color:orange;"> 
+          <p> <label> Legend Text: </label>   <input value="{{datass.text_legend.text}}" > </p>
+          </div>
+         
+         <template if='{{datass.plot_type=="line_2d"||datass.plot_type=="linesymbol_2d"}}'>  
+         <div style="top:220px; left:0px; width:500px; height:100px; position:absolute;background-color:pink;">             
+         <p>     Line type:          
+          <select value="{{datass.line_type}}">
+           <option value="solid">Solid</option>
+           <option value="long-dash">Long Dash</option>
+           <option value="short-dash">Short Dash</option>
+           <option value="dotted">Dotted</option>
+           <option value="dash-dot">Dash-Dot</option>
+          </select>            </p>     
+            <p> Line Width: <input style="width:80px" value="{{datass.line_style.stroke_width | asInteger }}">  
+             Line Color: <input type="color" value="{{datass.line_style.stroke}}">                   
+         </div>
+         </template>
+         </template>
+         </template>
+      </div>      
+      </template>
+        
+      
+    <template if="{{PLOT_SETTING_LABEL_STYLE==true}}">    
+    <div style="top:50px; left:0px; width:200px; position:absolute;"> 
+    <template repeat="{{label in data_plot.label_list}}"> 
+        <p>   <button on-click="{{change_label_}}"  data-msg="{{data_plot.label_list.indexOf(label)}}" 
+         style='width:100px; height:25px; background-color:{{data_plot.label_list.indexOf(label)==active_label ? "red": "white"}}'> {{label.text}} </button>
+         <button on-click="{{delete_label_}}"  data-msg="{{data_plot.label_list.indexOf(label)}}" > Delete </button>
+         </p>
+    </template>       
+    </div>
+    <div style="top:50px; left:200px; width:500px; height:250px; position:absolute; background-color:Aquamarine;">
+      <p>  <input value="{{data_plot.label_list[active_label].text}}"> </p>
+      <p> Text Color:  <input type="color" value="{{data_plot.label_list[active_label].color}}">       </p>
+      <p> Font Size:  <input value="{{data_plot.label_list[active_label].font_size  | asInteger  }}"> </p>
+      <p>  Rotation Degree: <input value="{{data_plot.label_list[active_label].rotation_degree  | asInteger  }}">  </p>
+      Coordination of Lable: 
+      <p> <label> x: </label>  <input value="{{data_plot.label_list[active_label].x | asInteger }}">  
+       <label> y: </label>  <input value="{{data_plot.label_list[active_label].y | asInteger }}">  </p>
+    </div>   
+   </template>
+   
+    <template if="{{PLOT_SETTING_LEGEND_BOX==true}}">  
+       <div style="top:50px; left:50px; width:500px; height:200px; position:absolute; background-color:Aquamarine;">
+       Coordination of Legend Box:
+      <p> <label> left:  </label>  <input value="{{data_plot.legend_box_trans_x | asInteger }}">   </p>
+      <p> <label> top:  </label>  <input value="{{data_plot.legend_box_trans_y | asInteger }}">   </p> 
+       </div>
+    </template>
+      
+      
+   </div>       
+   <!--   <button style="top:350px; left:100px;  position:absolute;" on-click="{{plt_setting_apply}}"> Apply </button>  -->
+      <button style="top:450px; left:400px;  position:absolute;" on-click="{{plt_setting_cancel}}"> Finish </button>
+   </div>   
+   </template>
+   </template>    
+
+
+
+    </x-dialog>
+    
+    
+    <template if="{{FIT_SETTING_SHOW==true}}">  
+  <div style="margin:0; padding:0; top:50px; left:73%; height:750px; width:25%; position: absolute; background-color:PaleGreen; overflow:auto; "> 
+ <!-- <div style="left:100px; position:absolute;">   -->
+  <p > <label>Fit function: </label>  <button> Help </button> </p> 
+  <p> <label> y= </label>  <textarea  cols="38" rows="5" value="{{fit_setting.fit_fuction}}">   </textarea>  </p>
+   
+  <template repeat="{{name in fit_setting.para_name}}">
+  <p > <label>Paramter</label> <input style="width:50px;" value="{{name}}">   
+  <label>Initial value:</label> <input style="width:50px;" value="{{fit_setting.para_value[fit_setting.para_name.indexOf(name)] | asDouble}}">   
+   <button on-click="{{fit_set_del_para}}"  data-msg="{{fit_setting.para_name.indexOf(name)}}">Delete </button>  
+  </p>
+  </template>
+  <button style="background-color:pink;" on-click="{{fit_set_add_para}}">Add parameter</button>    
+  <p > <label>Range to Fit: </label> </p> <p> <label> x_min</label> <input style="width:50px;" value="{{fit_setting.x_min | asDouble}}">  
+    <label>x_max</label> <input style="width:50px;" value="{{fit_setting.x_max | asDouble}}"> </p>
+  <p> <label>Number of points for plot</label> <input style="width:50px;" value="{{fit_setting.num_of_point_for_plot | asInteger}}"> </p>  
+  <p  > <button style="background-color:pink;"  on-click="{{do_curve_fit}}"> Do Curve Fit </button>   
+   <button style="background-color:pink;"  on-click="{{show_curve_fit_cancel}}"> Cancel</button>  </p>
+   <p> <label> Output: </label> </p>
+   <p> <label> Squared Error: </label>  <label> {{ fit_setting.squared_error }} </label> </p>
+   <p> <label> Correlation Coefficient: </label>  <label> {{ fit_setting.correlation_coefficient }}  </label>  </p>   
+  <template repeat="{{name in fit_setting.para_name}}">
+    <p > <label>  Paramter {{name}} :  {{fit_setting.para_value[fit_setting.para_name.indexOf(name)]}}    </label>  </p>
+  </template>
+  </div> 
+ <!-- </div>    -->
+  </template>
+  
+  
+    <template if="{{POLY_FIT_SET_SHOW==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:73%; height:600px; width:25%; position: absolute; background-color:cyan; overflow:auto; "> 
+  <p> <label>Polynomial Order: </label> <input value="{{poly_fit_setting.poly_order | asInteger}}"> </p>    
+  <p> <label>Range to Fit: x_min</label> <input style="width:50px;" value="{{poly_fit_setting.x_min | asDouble}}"> 
+  <label>x_max</label> <input style="width:50px;" value="{{poly_fit_setting.x_max | asDouble}}"> </p>
+  <p> <label>Number of points for plot</label> <input style="width:50px;" value="{{poly_fit_setting.num_of_point_for_plot | asInteger}}"> </p>  
+  
+  <button style="background-color:pink;" on-click="{{do_polynomial_fit}}"> Do Polynomial Fit </button>  
+  <button style="background-color:pink;" on-click="{{show_poly_fit_cancel}}"> Cancel</button>  
+  
+  <p> <label> Output: </label> </p>
+   <p> <label> Squared Error: </label>  <label> {{ poly_fit_setting.squared_error }} </label> </p>
+   <p> <label> Correlation Coefficient: </label>  <label> {{ poly_fit_setting.correlation_coefficient }}  </label>  </p>   
+    <template repeat="{{name in poly_fit_setting.para_value}}">
+    <p > <label> Polynomial Coefficient {{poly_fit_setting.para_value.indexOf(name)}}  : {{name}} </label>  </p>
+  </template>
+  
+  </div> 
+  </template>
+  
+  
+  
+  <template if="{{DIFF_EQ_PARA_EST==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:73%; height:600px; width:25%; position: absolute; background-color:cyan; overflow:auto; "> 
+  <p> <label>Differential equation: </label> <button> Help </button> </p> 
+   <p> <label> dy/dx=</label>    <textarea  cols="38" rows="5" value="{{fit_setting.fit_fuction}}">   </textarea>  </p>  
+  <template repeat="{{name in fit_setting.para_name}}">
+  <p> <label>Paramter:</label> <input style="width:50px;" value="{{name}}">   
+  <label>Initial value:</label> <input style="width:50px;" value="{{fit_setting.para_value[fit_setting.para_name.indexOf(name)] | asDouble}}">
+  <button on-click="{{fit_set_del_para}}"  data-msg="{{fit_setting.para_name.indexOf(name)}}">Delete</button>   </p>
+  </template>
+  <button style="background-color:pink;" on-click="{{fit_set_add_para}}">Add parameter</button>    
+  <p> <label>Range to Fit: </label> </p> 
+  <p> <label> x_min </label> <input style="width:50px;" value="{{fit_setting.x_min | asDouble}}"> 
+  <label>x_max</label> <input style="width:50px;" value="{{fit_setting.x_max | asDouble}}"> </p>  
+<!--  <p> <label>Number of points for plot</label> <input style="width:50px;" value="{{fit_setting.num_of_point_for_plot | asInteger}}"> </p>   -->
+  <button style="background-color:pink;" on-click="{{do_diff_eq_para_est}}"> Estimate Parameter </button>  
+  <button style="background-color:pink;" on-click="{{diff_eq_para_est_cancel}}"> Cancel</button>  
+  </div>   
+  </template>  
+  
+  
+    
+    
+    
+    
+  </template>
+  <script type="application/dart" src="plot2d_element.dart"></script>
+</polymer-element>
+
+

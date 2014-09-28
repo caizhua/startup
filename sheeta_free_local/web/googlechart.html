@@ -1,0 +1,246 @@
+ <link rel="import" href="packages/polymer/polymer.html">  
+ <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<!-- <script src="packages/browser/dart.js"></script>  -->
+<!-- <script src="packages/browser/interop.js"></script>  -->
+  <link rel="import" href="free_overlay.html">
+  
+ <polymer-element name="gchart-element">
+  
+ <template>    
+  <style>  </style>
+  
+   <button on-click="{{embed_share_plot}}" style='border:none; font-size:16px;  top:0%; width:9%; height:4%; left:0%; background-color:orange; position: absolute;'> Embed/Share </button>  <!--   </template>   -->   
+ <button   on-click="{{download_plot}}" style='border:none; font-size:16px; top:0%; width:9%;  height:4%; left:10%; background-color:orange; position: absolute;'> Download </button>  <!--   </template>   -->       
+ <button  on-click="{{refresh_plot}}" style='border:none; font-size:16px; top:0%; width:9%;  height:4%; left:20%; background-color:orange; position: absolute;'> Refresh </button>  <!--   </template>   -->     
+  <div id="download_plotxxx" style='border:none; font-size:12px; top:4%; width:9%;  height:2%; left:10%; position: absolute;'> </div>
+  
+  <div>
+    <div id="visualization" style="left:{{plot_option.frame.left}}px; top:{{plot_option.frame.top}}px; width: {{plot_option.frame.width}}px; height:{{plot_option.frame.height}}px;"></div>
+ </div> 
+ 
+  <button on-click="{{general_show}}" style='border:none; font-size:20px;  top:6.1%; width:6%; height:4%; left:70%; background-color:{{RIBBON_GENERAL==true ? "cyan" : "siver"}}; position: absolute;'> General </button>  <!--   </template>   -->   
+ <button  on-click="{{axis_show}}" style='border:none; font-size:20px; top:6.1%; width:6%;  height:4%; left:77%; background-color:{{RIBBON_AXIS==true ? "cyan" : "siver"}}; position: absolute;'> Axis </button>  <!--   </template>   -->       
+ <button  on-click="{{data_show}}" style='border:none; font-size:20px; top:6.1%; width:6%;  height:4%; left:84%; background-color:{{RIBBON_DATA==true ? "cyan" : "siver"}}; position: absolute;'> Data </button>  <!--   </template>   -->     
+ <button  on-click="{{advance_show}}" style='border:none; font-size:20px; top:6.1%; width:7%;  height:4%; left:91%; background-color:{{RIBBON_ADVANCED==true ? "cyan" : "siver"}}; position: absolute;'> Advanced </button>  <!--   </template>   -->     
+ 
+ 
+ <div style="overflow:auto; left:70%; font-size:13px; width:28%; top:10%; height:80%; background-color:cyan; position:absolute;"> 
+ 
+   <template if="{{RIBBON_GENERAL==true}}"> 
+   
+     <p>   <label> Plot type:</label>     
+      
+      <select on-change="{{refresh_plot}}"  value="{{plot_type}}">
+      <option value="scatter">Scatter Chart</option>
+      <option value="line">Line Chart</option>
+      <option value="area">Area Chart</option> 
+      <option value="bar">Bar Chart</option>
+      <option value="column">Column Chart</option>
+      <option value="combo">Combo Chart</option>      
+      <option value="pie">Pie Chart</option>
+      <option value="bubble">Bubble Chart</option>
+      <option value="candlestick">CandleStick Chart</option> 
+      <option value="histogram"> Histogram </option>
+      <option value="stepped-area"> Stepped Area Chart</option>
+      <option value="geo">Geography Chart</option>   
+     </select> 
+     
+    </p>
+    
+    <!-- <template if='{{x_value_type=="number"}}'>    </template>   -->  
+ 
+   <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Frame: </label> </p>
+   <p>  <label> Left: </label> <input on-change="{{refresh_plot}}" style="width:50px;" value="{{plot_option.frame.left | asInteger}}">  
+     <label> Top: </label> <input on-change="{{refresh_plot}}" style="width:50px;" value="{{plot_option.frame.top | asInteger}}">  
+    <label> Width: </label> <input on-change="{{refresh_plot}}" style="width:50px;" value="{{plot_option.frame.width | asInteger}}">  
+    <label> Height: </label> <input on-change="{{refresh_plot}}" style="width:50px;" value="{{plot_option.frame.height | asInteger}}">  </p>
+   
+   <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Title: </label> </p> 
+   <p>  <label> Title: </label> <input on-change="{{refresh_plot}}" style="width:350px;" value="{{plot_option.title.title}}">  </p>
+    <p>   <label> Title position:</label>
+        <select on-change="{{refresh_plot}}"  value="{{plot_option.title.titlePosition}}">
+      <option value="in">in</option>
+      <option value="out">out</option>
+      <option value="none">none</option>
+     </select>  </p>
+    <p> 
+     <select on-change="{{refresh_plot}}"  value="{{plot_option.title.titleTextStyle.fontName}}">
+      <option value='Arial'>Arial</option>
+      <option value='Times-Roman'>'Times-Roman'</option>
+     </select>
+     <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.title.titleTextStyle.color}}">  
+     <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.title.titleTextStyle.fontSize | asInteger}}"> 
+     <input on-change="{{refresh_plot}}" type="checkbox" checked="{{plot_option.title.titleTextStyle.bold}}"> <label style="font-weight:bold;"> B </label>
+     <input on-change="{{refresh_plot}}" type="checkbox" checked="{{plot_option.title.titleTextStyle.italic}}"> <label style="font-style:italic;"> I </label>
+    </p>
+
+    
+     
+   <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Background: </label> </p> 
+   <p>  <label> Fill Color: </label> <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.background.fill}}">  
+    <label> Stroke Color: </label> <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.background.stroke}}">  
+    <label> Stroke Width: </label> <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.background.strokeWidth | asInteger}}">  </p>
+   
+   <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Legend: </label> </p> 
+       <p>   <label> alignment:</label>
+        <select on-change="{{refresh_plot}}"  value="{{plot_option.legend.alignment}}">
+      <option value='start'>start</option>
+      <option value='center'>center</option>
+      <option value='end' >end</option>
+     </select> 
+     <label> position:</label>
+        <select on-change="{{refresh_plot}}"  value="{{plot_option.legend.position}}">
+      <option value='bottom'>bottom</option>
+      <option value='left'>left</option>
+      <option value='in' >in</option>
+      <option value='none'>none</option>
+      <option value='right'>right</option>
+      <option value='top' >top</option>
+     </select> 
+      <label> maxLines: </label> <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.legend.maxLines | asInteger}}">    
+      </p>
+      <p> 
+     <select on-change="{{refresh_plot}}"  value="{{plot_option.legend.textStyle.fontName}}">
+      <option value='Arial'>Arial</option>
+      <option value='Times-Roman'>Times-Roman</option>
+     </select>
+     <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.legend.textStyle.color}}">  
+     <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.legend.textStyle.fontSize | asInteger}}"> 
+     <input on-change="{{refresh_plot}}" type="checkbox" checked="{{plot_option.legend.textStyle.bold}}"> <label style="font-weight:bold;"> B </label>
+     <input on-change="{{refresh_plot}}" type="checkbox" checked="{{plot_option.legend.textStyle.italic}}"> <label style="font-style:italic;"> I </label>
+    </p> 
+    
+  </template>
+  
+  
+     <template if="{{RIBBON_AXIS==true}}"> 
+     
+      <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Horizontal: </label> </p> 
+      <p>  <label> Axis Title: </label> <input on-change="{{refresh_plot}}" style="width:350px;" value="{{plot_option.haxis.title}}">  </p>
+      <p> <label> Min: </label> <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.haxis.minValue | asDouble}}">  
+      <label> Max: </label> <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.haxis.maxValue | asInteger}}">  </p>
+          
+      <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Vertical: </label> </p> 
+      <p>  <label> Axis Title: </label> <input on-change="{{refresh_plot}}" style="width:350px;" value="{{plot_option.vaxis.title}}">  </p>
+      <p> <label> Min: </label> <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.vaxis.minValue | asInteger}}">  
+      <label> Max: </label> <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.vaxis.maxValue | asInteger}}">  </p>
+      
+     
+     </template>
+     
+     
+     <template if="{{RIBBON_DATA==true}}"> 
+     <template repeat="{{data in plot_option.data_series_list.data_style_list}}">
+       <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Style for {{plotdata[0][plot_option.data_series_list.data_style_list.indexOf(data)+1]}}: </label> </p> 
+       <p> <label> Data color: </label> <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{data.color}}">  
+       <label> Visible in Legend: </label> <input on-change="{{refresh_plot}}" type="checkbox" checked="{{data.visibleInLegend}}"> </p>       
+    <p>   <label> Curve type: </label> 
+       <select on-change="{{refresh_plot}}"  value="{{data.curveType}}">
+      <option value='none'> none </option>
+      <option value='function' > function</option>
+      </select>
+      <label> Line Width: </label> 
+      <input on-change="{{refresh_plot}}" style="width:40px;" value="{{data.lineWidth | asInteger}}"> 
+    </p>    
+     <p>    <label> Point Shape: </label> 
+      <select on-change="{{refresh_plot}}"  value="{{data.pointShape}}">
+      <option value='circle'> circle </option>
+      <option value='triangle' > triangle</option>
+      <option value='square'> square </option>
+      <option value='diamond' > diamond</option>
+      <option value='star'> star </option>
+      <option value='polygon' > polygon</option>
+      </select>
+     <label> Point Size: </label> 
+      <input on-change="{{refresh_plot}}" style="width:40px;" value="{{data.pointSize | asInteger}}">   
+     </p>
+      
+     </template>
+     </template>
+     
+     
+     
+     <template if="{{RIBBON_ADVANCED==true}}"> 
+      <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Tooltip: </label> </p> 
+      <p>   <label> Trigger: </label> 
+       <select on-change="{{refresh_plot}}"  value="{{plot_option.tool_tip.trigger}}">
+      <option value='focus' > focus </option>
+      <option value='none'> none </option>
+      <option value='selection' > selection</option>
+      </select>      
+      <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.tool_tip.textStyle.color}}">  
+     <input on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.tool_tip.textStyle.fontSize | asInteger}}"> 
+     <input on-change="{{refresh_plot}}" type="checkbox" checked="{{plot_option.tool_tip.textStyle.bold}}"> <label style="font-weight:bold;"> B </label>
+     <input on-change="{{refresh_plot}}" type="checkbox" checked="{{plot_option.tool_tip.textStyle.italic}}"> <label style="font-style:italic;"> I </label>
+    </p>    
+     <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Crosshair: </label> </p> 
+      <p>   <label> Trigger: </label> 
+       <select on-change="{{refresh_plot}}"  value="{{plot_option.cross_hair.trigger}}">
+      <option value='focus' > focus </option>
+      <option value='both'> both </option>
+      <option value='null'> null </option>
+      <option value='selection' > selection</option>
+      </select>   
+       <label> Color: </label> <input type="color" on-change="{{refresh_plot}}" style="width:40px;" value="{{plot_option.cross_hair.color}}">  
+      </p>
+      <p style="background-color:DeepSkyBlue; "> <label style="font-size:20px;" > Explorer: </label> </p> 
+       <input on-change="{{refresh_explorer}}" type="checkbox" checked="{{plot_option.explorer.IS_dragToPan}}"> <label > dragToPan </label>
+       <input on-change="{{refresh_explorer}}" type="checkbox" checked="{{plot_option.explorer.IS_dragToZoom}}"> <label > dragToZoom </label>
+       <input on-change="{{refresh_explorer}}" type="checkbox" checked="{{plot_option.explorer.IS_rightClickToReset}}"> <label > rightClickToReset </label>
+
+     </template>
+     
+    
+ </div>
+ 
+ 
+         <x-dialog id="dialog" class="dialog">
+      <style no-shim>
+        .dialog {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          overflow: auto;
+          background: white;
+          padding:30px 42px;
+          outline: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        #dialog {
+          width: 800px;
+          height: 600px;
+        }
+      </style>    
+ 
+ 
+  <template if="{{EMBED_SHARED_DIALOG==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:600px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <label> Generate Link for: </label>
+  <p> <button on-click="{{generate_static_link}}"> Static figure </button>  
+  <button on-click="{{generate_embed_link}}"> Embed purpose figure</button> 
+  
+   <p> <label> Share Link:  </label>  </p>
+   <textarea cols="50" rows="3" value="{{share_link}}"> </textarea>  
+  
+   <p> <label> Embed Link:  </label>   </p>
+   <textarea cols="50" rows="3" value="{{share_link}}"> </textarea>  
+   
+   <p>   <a _href="{{email_content}}"  target="_blank"> Email this link with Gmail or other email client</a>  </p>
+   <p>   <a href="slides.com"  target="_blank"> Create slides with generated figure (link to slides.com)</a>  </p>
+     
+  <p> <button on-click="{{embed_share_cancel}}"> Cancel</button>    </p>
+  </div> 
+  </div>   
+  </template>  
+  
+     </x-dialog> 
+  
+  
+  
+    </template>
+  <script type="application/dart" src="googlechart.dart"></script>
+</polymer-element>

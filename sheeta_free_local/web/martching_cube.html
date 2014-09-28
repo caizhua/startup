@@ -1,0 +1,66 @@
+<link rel="import" href="packages/polymer/polymer.html">
+<link rel="stylesheet" href="martching_cube.css">
+<script type="text/javascript" src="delaunay.js">  </script>
+  <link rel="import" href="free_overlay.html">
+  
+<polymer-element name="d3surface-element">
+  <template>
+    <style>     </style>    
+    
+   <button on-click="{{embed_share_plot}}" style='border:none; font-size:16px;  top:0%; width:9%; height:4%; left:10%; background-color:orange; position: absolute;'> Embed/Share </button>  <!--   </template>   -->  
+    
+    <div id="ThreeJS" style="position:absolute; left:0px; top:0px;"></div>   
+    
+    
+    
+   <x-dialog id="dialog" class="dialog">
+      <style no-shim>
+        .dialog {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          overflow: auto;
+          background: white;
+          padding:30px 42px;
+          outline: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        #dialog {
+          width: 800px;
+          height: 600px;
+        }
+      </style>    
+ 
+ 
+  <template if="{{EMBED_SHARED_DIALOG==true}}">  
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:600px; position: absolute; "> 
+  <div style="left:100px; position:absolute;">   
+  <label> Generate Link for: </label>
+  <p>   <button on-click="{{generate_embed_link}}"> Embed/Share purpose figure</button> 
+  
+   <p> <label> Share Link:  </label>  </p>
+   <textarea cols="50" rows="3" value="{{share_link}}"> </textarea>  
+  
+   <p> <label> Embed Link:  </label>   </p>
+   <textarea cols="50" rows="3" value="{{share_link}}"> </textarea>  
+   
+   <p>   <a _href="{{email_content}}"  target="_blank"> Email this link with Gmail or other email client</a>  </p>
+   <p>   <a href="slides.com"  target="_blank"> Create slides with generated figure (link to slides.com)</a>  </p>
+     
+  <p> <button on-click="{{embed_share_cancel}}"> Cancel</button>    </p>
+  </div> 
+  </div>   
+  </template>  
+  
+     </x-dialog> 
+    
+    
+    
+    
+     
+  </template>
+  <script type="application/dart" src="martching_cube.dart"></script>
+</polymer-element>

@@ -1,0 +1,214 @@
+<link rel="import" href="../packages/polymer/polymer.html">
+<!-- <link rel="import" href="table_element.html">  -->
+<link rel="import" href="./table_instrument.html">
+<link rel="import" href="../plot2d_element.html">
+<link rel="import" href="../free_overlay.html">
+  
+<polymer-element name="layout-element" attributes="username parentID">
+  <template> 
+  
+    <style>   
+   
+   #save_exit{
+     display:none; 
+   }
+   
+   #save_no_exit{
+     display:none; 
+   }
+    
+     </style>
+    
+    
+     <div style=" top:0px; left:160px; height:100%; width:1440px; position: absolute;">   
+    
+     <template if="{{table_show==true}}">
+  <!--   <template if='{{custom_tag=="standard"}}'>
+      <table-element table="{{table_temp.table}}" batch_plot_dialog="{{table_temp.batch_plot_dialog}}" plot_dialog="{{table_temp.plot_dialog}}"
+        ctxmenu_show="{{table_temp.ctxmenu_show}}" table_select="{{table_temp.table_select}}" grid_insert="{{table_temp.grid_insert}}" 
+        table_select_history="{{table_temp.table_select_history}}" set_col_value="{{table_temp.set_col_value}}"  geography_set_as="{{table_temp.geography_set_as}}" 
+        copy_buffer_object="{{table_temp.copy_buffer_object}}"> </table-element> 
+      </template>  -->
+        
+         <template if='{{custom_tag=="instrument"}}'>
+         <table-instrument table="{{table_temp.table}}" batch_plot_dialog="{{table_temp.batch_plot_dialog}}" plot_dialog="{{table_temp.plot_dialog}}"
+        ctxmenu_show="{{table_temp.ctxmenu_show}}" table_select="{{table_temp.table_select}}" grid_insert="{{table_temp.grid_insert}}" 
+        table_select_history="{{table_temp.table_select_history}}" set_col_value="{{table_temp.set_col_value}}"  geography_set_as="{{table_temp.geography_set_as}}" 
+        copy_buffer_object="{{table_temp.copy_buffer_object}}"> </table-instrument> 
+        </template>
+        
+    </template>    
+    
+    <template if="{{plot_show==true}}">
+       <plot2d-element  data_plot_list="{{plot_temp.data_plot_list}}" active_plot="{{plot_temp.active_plot}}"  fit_setting="{{plot_temp.fit_setting}}" 
+       poly_fit_setting="{{plot_temp.poly_fit_setting}}" line_plot="{{plot_temp.line_plot}}" rect_plot="{{plot_temp.rect_plot}}" func_plot="{{plot_temp.func_plot}}"   
+        screen_reader="{{plot_temp.screen_reader}}"  zoom_control="{{plot_temp.zoom_control}}"  ctxmenu_show="{{plot_temp.ctxmenu_show}}"> </plot2d-element>   
+    </template>    
+    </div>
+   
+
+  
+    <svg x="0px" y="0px" width="10%" height="800px">  
+    
+    <path id="save_and_exit"  on-click="{{exit_buttton_exec}}"  fill="blue" transform="translate(30, 20) scale(1.5)" d="M16,30.534c8.027,0,14.534-6.507,14.534-14.534c0-8.027-6.507-14.534-14.534-14.534C7.973,1.466,1.466,7.973,1.466,16C1.466,24.027,7.973,30.534,16,30.534zM18.335,6.276l3.536,3.538l-6.187,6.187l6.187,6.187l-3.536,3.537l-9.723-9.724L18.335,6.276z" />
+   
+    <text  on-click="{{save_and_exit}}" id="save_exit"  x="0" y="85" font-size=23 fill='{{readonly==false ? "blue" : "grey"}}' > Save and Exit </text>   
+    <text  on-click="{{save_not_exit}}" id="save_no_exit"  x="0" y="110" font-size=23 fill="red" > Exit no Save </text>   
+     
+    <g on-click="{{new_table_file_}}" transform="translate(0, 200)" class="group">
+       <path  class="group" fill="orange" transform="translate(-5, -5) scale(0.45)"
+        d="M50.347,63.967v-0.607c0-0.665,0.11-1.321,0.321-1.947h-2.516v-8.857h2.194V50h-2.194v-9.581h19.163v1.09h2.555v-1.09
+  h19.658v1.09h2.555V17.354c0-1.643-1.337-2.98-2.98-2.98H15.294c-1.644,0-2.98,1.338-2.98,2.98v65.293
+  c0,1.009,0.507,1.899,1.277,2.439v0.47h1.069c0.205,0.044,0.416,0.071,0.634,0.071h35.053V83h-2.194v-8.09h2.274
+  c-0.048-0.305-0.08-0.612-0.08-0.921v-1.634h-2.194v-8.389H50.347z M69.87,16.928h19.232c0.234,0,0.426,0.191,0.426,0.426v8.588
+  H69.87V16.928z M69.87,28.496h19.658v9.368H69.87V28.496z M48.152,16.928h19.163v9.014H48.152V16.928z M48.152,28.496h19.163v9.368
+  H48.152V28.496z M24.094,83h-9.021c-0.12-0.074-0.205-0.202-0.205-0.354V74.91h9.226V83z M24.094,72.355h-9.226v-8.389h9.226V72.355
+  z M24.094,61.412h-9.226v-8.857h9.226V61.412z M24.094,50h-9.226v-9.581h9.226V50z M24.094,37.864h-9.226v-9.368h9.226V37.864z
+   M45.598,83H26.648v-8.09h18.949V83z M45.598,72.355H26.648v-8.389h18.949V72.355z M45.598,61.412H26.648v-8.857h18.949V61.412z
+   M45.598,50H26.648v-9.581h18.949V50z M45.598,37.864H26.648v-9.368h18.949V37.864z M45.598,25.941H26.648v-9.014h18.949V25.941z
+   M50.031,30.167h15.334V35.5H50.031V30.167z M91.335,44.01H55.367c-0.646,0-1.169,0.523-1.169,1.169v10.63
+  c0,0.646,0.522,1.169,1.169,1.169h35.968c0.646,0,1.169-0.523,1.169-1.169v-10.63C92.504,44.533,91.981,44.01,91.335,44.01z
+   M73.351,53.264H57.999v-6.141h15.352V53.264z M91.335,59.69H55.367c-0.646,0-1.169,0.523-1.169,1.169v10.63
+  c0,0.646,0.522,1.17,1.169,1.17h35.968c0.646,0,1.169-0.523,1.169-1.17V60.86C92.504,60.214,91.981,59.69,91.335,59.69z
+   M73.351,68.787H57.999v-6.141h15.352V68.787z M91.335,75.221H55.367c-0.646,0-1.169,0.523-1.169,1.169v10.63
+  c0,0.646,0.522,1.169,1.169,1.169h35.968c0.646,0,1.169-0.523,1.169-1.169V76.39C92.504,75.744,91.981,75.221,91.335,75.221z
+   M73.351,84.776H57.999v-6.141h15.352V84.776z"/>
+       <path  fill="green" transform="translate(0, -2) scale(0.8)" d="M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z" />
+       <text  x="45" y="25" font-size=18> New Table </text>
+    </g>   
+   
+    <g on-click="{{new_plot_file_dialog}}" transform="translate(0, 240)">
+    
+ <path  class="group" fill="orange" transform="translate(0, 0) scale(0.07)"
+        d="M480,128c-14.844,0-26.781,10.313-30.375,24H400l67.844-90.438C471.594,63.094,475.688,64,480,64c17.688,0,32-14.313,32-32
+  S497.688,0,480,0s-32,14.313-32,32c0,7.5,2.969,14.125,7.313,19.563L380,152h-61.625c-3.625-13.688-15.531-24-30.375-24
+  c-17.672,0-32,14.313-32,32c0,7.781,3.125,14.656,7.734,20.188L204.5,263.125l-44.875-8.938C158.625,237.375,145.031,224,128,224
+  c-17.672,0-32,14.313-32,32s14.328,32,32,32c12.641,0,23.328-7.5,28.531-18.125l37.766,7.563l-54.922,76.844
+  C135.828,352.938,132.031,352,128,352c-17.672,0-32,14.313-32,32s14.328,32,32,32s32-14.313,32-32
+  c0-7.781-3.109-14.656-7.734-20.188l59.234-82.938l44.875,8.969C257.375,306.625,270.984,320,288,320c17.688,0,32-14.313,32-32
+  c0-7.5-2.969-14.125-7.313-19.563L388,168h61.625c3.625,13.688,15.531,24,30.375,24c17.688,0,32-14.313,32-32S497.688,128,480,128z
+   M300.156,258.438C296.406,256.906,292.313,256,288,256c-12.641,0-23.344,7.5-28.547,18.125l-37.75-7.531l54.922-76.906
+  C280.188,191.063,283.969,192,288,192c14.844,0,26.75-10.313,30.375-24H368L300.156,258.438z M512,480v32H0V0h32v480H512z"/>
+  
+        <path  fill="green" transform="translate(0, -2) scale(0.8)" d="M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z" />
+        <text x="45" y="25" font-size=18> New Plot </text>
+    </g>        
+   
+   <template repeat="{{g in file_list}}"> 
+    <template if='{{g.type=="table_file"}}'> 
+      <g on-click="{{show_selected_file}}" data-msg='{"idx":{{file_list.indexOf(g)}}, "type":"{{g.type}}"}' transform="translate({{g.translate.x}}, {{g.translate.y}})">
+       <path  class="group" fill="orange" transform="translate(-5, -5) scale(0.45)"
+        d="M50.347,63.967v-0.607c0-0.665,0.11-1.321,0.321-1.947h-2.516v-8.857h2.194V50h-2.194v-9.581h19.163v1.09h2.555v-1.09
+  h19.658v1.09h2.555V17.354c0-1.643-1.337-2.98-2.98-2.98H15.294c-1.644,0-2.98,1.338-2.98,2.98v65.293
+  c0,1.009,0.507,1.899,1.277,2.439v0.47h1.069c0.205,0.044,0.416,0.071,0.634,0.071h35.053V83h-2.194v-8.09h2.274
+  c-0.048-0.305-0.08-0.612-0.08-0.921v-1.634h-2.194v-8.389H50.347z M69.87,16.928h19.232c0.234,0,0.426,0.191,0.426,0.426v8.588
+  H69.87V16.928z M69.87,28.496h19.658v9.368H69.87V28.496z M48.152,16.928h19.163v9.014H48.152V16.928z M48.152,28.496h19.163v9.368
+  H48.152V28.496z M24.094,83h-9.021c-0.12-0.074-0.205-0.202-0.205-0.354V74.91h9.226V83z M24.094,72.355h-9.226v-8.389h9.226V72.355
+  z M24.094,61.412h-9.226v-8.857h9.226V61.412z M24.094,50h-9.226v-9.581h9.226V50z M24.094,37.864h-9.226v-9.368h9.226V37.864z
+   M45.598,83H26.648v-8.09h18.949V83z M45.598,72.355H26.648v-8.389h18.949V72.355z M45.598,61.412H26.648v-8.857h18.949V61.412z
+   M45.598,50H26.648v-9.581h18.949V50z M45.598,37.864H26.648v-9.368h18.949V37.864z M45.598,25.941H26.648v-9.014h18.949V25.941z
+   M50.031,30.167h15.334V35.5H50.031V30.167z M91.335,44.01H55.367c-0.646,0-1.169,0.523-1.169,1.169v10.63
+  c0,0.646,0.522,1.169,1.169,1.169h35.968c0.646,0,1.169-0.523,1.169-1.169v-10.63C92.504,44.533,91.981,44.01,91.335,44.01z
+   M73.351,53.264H57.999v-6.141h15.352V53.264z M91.335,59.69H55.367c-0.646,0-1.169,0.523-1.169,1.169v10.63
+  c0,0.646,0.522,1.17,1.169,1.17h35.968c0.646,0,1.169-0.523,1.169-1.17V60.86C92.504,60.214,91.981,59.69,91.335,59.69z
+   M73.351,68.787H57.999v-6.141h15.352V68.787z M91.335,75.221H55.367c-0.646,0-1.169,0.523-1.169,1.169v10.63
+  c0,0.646,0.522,1.169,1.169,1.169h35.968c0.646,0,1.169-0.523,1.169-1.169V76.39C92.504,75.744,91.981,75.221,91.335,75.221z
+   M73.351,84.776H57.999v-6.141h15.352V84.776z"/>
+      
+      <text x="45" y="25" font-size=18> {{g.object_name}} </text>
+      </g> 
+    </template>
+    <template if='{{g.type=="plot_file"}}'> 
+      <g on-click="{{show_selected_file}}" data-msg='{"idx":{{file_list.indexOf(g)}}, "type":"{{g.type}}"}' transform="translate({{g.translate.x}}, {{g.translate.y}})">
+     
+      <path  class="group" fill="orange" transform="translate(0, 0) scale(0.07)"
+        d="M480,128c-14.844,0-26.781,10.313-30.375,24H400l67.844-90.438C471.594,63.094,475.688,64,480,64c17.688,0,32-14.313,32-32
+  S497.688,0,480,0s-32,14.313-32,32c0,7.5,2.969,14.125,7.313,19.563L380,152h-61.625c-3.625-13.688-15.531-24-30.375-24
+  c-17.672,0-32,14.313-32,32c0,7.781,3.125,14.656,7.734,20.188L204.5,263.125l-44.875-8.938C158.625,237.375,145.031,224,128,224
+  c-17.672,0-32,14.313-32,32s14.328,32,32,32c12.641,0,23.328-7.5,28.531-18.125l37.766,7.563l-54.922,76.844
+  C135.828,352.938,132.031,352,128,352c-17.672,0-32,14.313-32,32s14.328,32,32,32s32-14.313,32-32
+  c0-7.781-3.109-14.656-7.734-20.188l59.234-82.938l44.875,8.969C257.375,306.625,270.984,320,288,320c17.688,0,32-14.313,32-32
+  c0-7.5-2.969-14.125-7.313-19.563L388,168h61.625c3.625,13.688,15.531,24,30.375,24c17.688,0,32-14.313,32-32S497.688,128,480,128z
+   M300.156,258.438C296.406,256.906,292.313,256,288,256c-12.641,0-23.344,7.5-28.547,18.125l-37.75-7.531l54.922-76.906
+  C280.188,191.063,283.969,192,288,192c14.844,0,26.75-10.313,30.375-24H368L300.156,258.438z M512,480v32H0V0h32v480H512z"/>
+      
+      <text x="45" y="25" font-size=18> {{g.object_name}} </text>
+      </g>   
+    </template>    
+    </template>
+    
+   
+   </svg>   
+   
+   <!--   -->
+      <x-dialog id="dialog" class="dialog">
+      <style no-shim>
+        .dialog {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          overflow: auto;
+          background: white;
+          padding:30px 42px;
+          outline: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        #dialog {
+          width: 800px;
+          height: 400px;
+        }
+      </style>      
+      <button style="top:10px; left:90%; position:absolute;" core-overlay-toggle  > Close </button>         
+   
+   
+   <template if='{{PLOT_DIALOG_SHOW==true}}'>    
+   <div style="top:60px; left:50px; width:300px; height:200px; position:absolute; background-color:pink;">
+   <p>   Select Table: 
+      <select  selectedIndex="{{choosed_table_index}}">
+       <option template repeat="{{tbl in table_name_list}}">{{tbl.name}}</option>
+      </select>                      
+   </p>   
+   <p>   Select Column:    
+      <select  selectedIndex="{{choosed_col_index}}">
+       <option template repeat="{{col in table_name_list[choosed_table_index].col_list}}">{{col.name}}</option>
+      </select>                      
+   </p>    
+   <button on-click="{{add_data_set}}"> Add to Plot Data Set </button>  
+   </div>
+   
+   <div style="overflow: auto; top:60px; left:400px; width:400px; height:200px; position:absolute; background-color:cyan;">
+   <template repeat="{{dataset in dataset_list}}">   
+      <p> <label> {{dataset.name}} </label>      
+       <label > Plot Type: </label> 
+     <select value="{{dataset.plot_type}}">
+      <option value="line_2d">2D Line</option>
+      <option value="symbol_2d">2D Symbol</option>
+      <option value="linesymbol_2d">2D Line+Symbol</option>
+      <option value="heat_map">2D Heat Map</option>
+      <option value="geography">Geography</option>
+     </select>      
+     <button on-click="{{delete_data_set}}" data-msg="{{dataset_list.indexOf(dataset)}}"> Delete </button>
+      </p>       
+   </template>
+   </div>
+   
+    <p>
+    <template if='{{dataset_list.length>0}}'>    
+      <button style="top:350px; left:300px; position:absolute;" on-click="{{plot_apply}}"> Plot </button> 
+   </template>
+   <template if='{{dataset_list.length==0}}'>    
+      <button style="top:350px; left:300px; position:absolute;" disabled="disabled"> Plot </button> 
+   </template>
+      <button style="top:350px; left:600px; position:absolute; " on-click="{{plot_cancel}}"> Cancel </button>
+   </p>
+   </template>   
+   
+       </x-dialog>
+
+  
+  </template>
+  <script type="application/dart" src="../layout.dart"></script>
+</polymer-element>

@@ -1,0 +1,330 @@
+<link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="./layout.html">
+<link rel="import" href="../user_forum.html">
+<!--  <link rel="import" href="packages/core_elements/core_meta.html">
+  <link rel="import" href="packages/core_elements/core_transition_css.html">
+  <link rel="import" href="packages/core_elements/core_overlay.html">  -->
+  <link rel="import" href="../free_overlay.html">
+  <link rel="import" href="../packages/core_elements/core_tooltip.html">
+  
+<polymer-element name="folder-element">
+  <template> 
+  
+    <style>
+     #login, #register {
+      margin-left: 400px;
+      margin-top: 300px;
+      }
+      
+      
+    .group:hover {
+      fill: green;
+      cursor:pointer;
+      }
+    
+  #header, #nav {  } 
+
+  #header { 
+    float: none; 
+    position: absolute;
+  }
+   
+  #nav {  
+    width: 200px;
+    background-color: #C0C0C0; 
+    font-family:"Century Gothic", "HelveticaNeueLT Pro 45 Lt", sans-serif; 
+    float: none; 
+  }
+  #nav li { 
+    list-style: none;
+    float: none; 
+    text-align: left;
+    height: 30px ;
+  } 
+  #nav li a { 
+    color: black; 
+    text-decoration: none; 
+    display: block; 
+    width: 200px; 
+    height: 30px ;
+  } 
+  #nav li a:hover { 
+    background-color: #0066FF; 
+  } 
+  
+  .hover-color:hover{
+    color: blue; 
+  }
+  
+  </style>
+  
+  
+   <template if="{{login==false}}">     
+    <template if="{{show_register==false}}"> 
+    <div id="login">
+    <p> Please login: </p>
+    <p> <label> Username </label> 
+     <template if="{{is_username_fixed==false}}">     <input value="{{username}}">      </template>
+     <template if="{{is_username_fixed==true}}">     <input value="{{username}}" readonly>      </template> 
+      </p>    
+    <p> <label> Password </label> 
+    <input type="password" value="{{password}}"> {{login_failed}}  <p>
+    <p> <button on-click="{{login_auth}}"> Login </button>  <!-- <button on-click="{{show_register_}}"> Register </button>   --> </p>
+    </div> 
+    </template>
+    
+    <template if="{{show_register==true}}"> 
+    <div id="register">
+    <p> Please register: </p>
+    <p> <label> Username </label> 
+    <input on-change="{{clear_user_existed}}" value="{{username}}">  {{user_existed}}</p>
+    <p> <label> Password </label> 
+    <input type="password" value="{{password}}">  <p>
+    <p> <button on-click="{{register_auth}}"> Register </button> </p>
+    </div> 
+    
+    </template>   
+    </template> 
+    
+
+ <template if="{{login==true}}"> 
+ 
+<template if="{{show_selected_dataproj==false}}">  
+  
+  <div style="top:0; left:160px; height:100%; width:1440px; position:absolute; ">
+    <svg id="container"  x="0" y="0" width="100%" height="100%">      
+   <g transform="translate(20, 20)" class="group">
+   <path on-click="{{new_data_proj_}}" class="group" fill="orange" transform="scale(1.0)" 
+   d="M45.954,83v-8.09h19.163v3.989l2.555-2.657l1.28-1.332l1.222-1.271l-1.194-1.284h-1.308v-1.407l-2.555-2.748v4.154H45.954
+  v-8.389H61.18l-2.375-2.555H45.954v-8.857h10.475c0.813-1.302,2.114-2.208,3.596-2.555h-14.07v-9.581h19.163v9.415h2.555v-9.415
+  H87.33v9.415h2.555v-32.48c0-1.643-1.337-2.98-2.98-2.98H13.096c-1.644,0-2.98,1.338-2.98,2.98v65.293
+  c0,1.009,0.507,1.899,1.277,2.439v0.47h1.069c0.205,0.044,0.416,0.071,0.634,0.071h45.553L61.175,83H45.954z M67.672,16.928h19.232
+  c0.234,0,0.426,0.191,0.426,0.426v8.588H67.672V16.928z M67.672,28.496H87.33v9.368H67.672V28.496z M45.954,16.928h19.163v9.014
+  H45.954V16.928z M45.954,28.496h19.163v9.368H45.954V28.496z M21.896,83h-9.021c-0.12-0.074-0.205-0.202-0.205-0.354V74.91h9.226V83
+  z M21.896,72.355H12.67v-8.389h9.226V72.355z M21.896,61.412H12.67v-8.857h9.226V61.412z M21.896,50H12.67v-9.581h9.226V50z
+   M21.896,37.864H12.67v-9.368h9.226V37.864z M43.399,83H24.45v-8.09h18.949V83z M43.399,72.355H24.45v-8.389h18.949V72.355z
+   M43.399,61.412H24.45v-8.857h18.949V61.412z M43.399,50H24.45v-9.581h18.949V50z M43.399,37.864H24.45v-9.368h18.949V37.864z
+   M43.399,25.941H24.45v-9.014h18.949V25.941z M90.413,61.38v-3.458H67.94l13.225,14.222c0.827,0.89,0.815,2.275-0.026,3.152
+  L68.064,88.895h22.349v-2.087c0-1.266,1.028-2.295,2.293-2.295s2.295,1.029,2.295,2.295v4.382c0,1.265-1.03,2.294-2.295,2.294
+  H62.674c-0.92,0-1.75-0.548-2.11-1.395c-0.361-0.849-0.184-1.827,0.456-2.491L76.324,73.68L60.993,57.19
+  c-0.621-0.668-0.787-1.641-0.422-2.479c0.365-0.837,1.189-1.378,2.103-1.378h30.032c1.265,0,2.295,1.029,2.295,2.294v5.752
+  c0,1.266-1.03,2.295-2.295,2.295S90.413,62.646,90.413,61.38z"/>
+   <path on-click="{{new_data_proj_}}" fill="green" transform="translate(-5, 0) scale(1.5)" d="M25.979,12.896 19.312,12.896 19.312,6.229 12.647,6.229 12.647,12.896 5.979,12.896 5.979,19.562 12.647,19.562 12.647,26.229 19.312,26.229 19.312,19.562 25.979,19.562z" />
+   <text x="5" y="110" font-size=15> New Data Proj. </text>
+   </g>   
+    
+    <template repeat="{{dp in dataproj_list}}">
+    <g transform="translate({{dp.translate.x}}, {{dp.translate.y}})">
+       <path on-click="{{show_selected_dataproj_}}" data-msg="{{dataproj_list.indexOf(dp)}}" class="group" fill='{{dp.creater==username ? "orange" : "#0066FF"}}' transform="scale(1.0)" 
+       d="M45.954,83v-8.09h19.163v3.989l2.555-2.657l1.28-1.332l1.222-1.271l-1.194-1.284h-1.308v-1.407l-2.555-2.748v4.154H45.954
+  v-8.389H61.18l-2.375-2.555H45.954v-8.857h10.475c0.813-1.302,2.114-2.208,3.596-2.555h-14.07v-9.581h19.163v9.415h2.555v-9.415
+  H87.33v9.415h2.555v-32.48c0-1.643-1.337-2.98-2.98-2.98H13.096c-1.644,0-2.98,1.338-2.98,2.98v65.293
+  c0,1.009,0.507,1.899,1.277,2.439v0.47h1.069c0.205,0.044,0.416,0.071,0.634,0.071h45.553L61.175,83H45.954z M67.672,16.928h19.232
+  c0.234,0,0.426,0.191,0.426,0.426v8.588H67.672V16.928z M67.672,28.496H87.33v9.368H67.672V28.496z M45.954,16.928h19.163v9.014
+  H45.954V16.928z M45.954,28.496h19.163v9.368H45.954V28.496z M21.896,83h-9.021c-0.12-0.074-0.205-0.202-0.205-0.354V74.91h9.226V83
+  z M21.896,72.355H12.67v-8.389h9.226V72.355z M21.896,61.412H12.67v-8.857h9.226V61.412z M21.896,50H12.67v-9.581h9.226V50z
+   M21.896,37.864H12.67v-9.368h9.226V37.864z M43.399,83H24.45v-8.09h18.949V83z M43.399,72.355H24.45v-8.389h18.949V72.355z
+   M43.399,61.412H24.45v-8.857h18.949V61.412z M43.399,50H24.45v-9.581h18.949V50z M43.399,37.864H24.45v-9.368h18.949V37.864z
+   M43.399,25.941H24.45v-9.014h18.949V25.941z M90.413,61.38v-3.458H67.94l13.225,14.222c0.827,0.89,0.815,2.275-0.026,3.152
+  L68.064,88.895h22.349v-2.087c0-1.266,1.028-2.295,2.293-2.295s2.295,1.029,2.295,2.295v4.382c0,1.265-1.03,2.294-2.295,2.294
+  H62.674c-0.92,0-1.75-0.548-2.11-1.395c-0.361-0.849-0.184-1.827,0.456-2.491L76.324,73.68L60.993,57.19
+  c-0.621-0.668-0.787-1.641-0.422-2.479c0.365-0.837,1.189-1.378,2.103-1.378h30.032c1.265,0,2.295,1.029,2.295,2.294v5.752
+  c0,1.266-1.03,2.295-2.295,2.295S90.413,62.646,90.413,61.38z"/>
+       <path id="group_menu" on-click="{{show_menu}}"  data-msg="{{dataproj_list.indexOf(dp)}}"  fill="blue" transform="translate(0, 5) scale(1.5)" 
+      d="M18.622,8.145L18.077,6.85c0,0,1.268-2.861,1.156-2.971L17.554,2.24
+  c-0.116-0.113-2.978,1.193-2.978,1.193L13.256,2.9c0,0-1.166-2.9-1.326-2.9H9.561C9.396,0,8.317,2.906,8.317,2.906L6.999,3.441
+  c0,0-2.922-1.242-3.034-1.131L2.289,3.951C2.173,4.064,3.507,6.867,3.507,6.867L2.962,8.16C2.962,8.16,0,9.301,0,9.455v2.322
+  c0,0.162,2.969,1.219,2.969,1.219l0.545,1.291c0,0-1.268,2.859-1.157,2.969l1.678,1.643c0.114,0.111,2.977-1.195,2.977-1.195
+  l1.321,0.535c0,0,1.166,2.898,1.327,2.898h2.369c0.164,0,1.244-2.906,1.244-2.906l1.322-0.535c0,0,2.916,1.242,3.029,1.133
+  l1.678-1.641c0.117-0.115-1.22-2.916-1.22-2.916l0.544-1.293c0,0,2.963-1.143,2.963-1.299v-2.32
+  C21.59,9.199,18.622,8.145,18.622,8.145z M14.256,10.568c0,1.867-1.553,3.387-3.461,3.387c-1.906,0-3.461-1.52-3.461-3.387
+  s1.555-3.385,3.461-3.385C12.704,7.184,14.256,8.701,14.256,10.568z" />   
+  
+  <template if="{{dp.share_list.length>0}}">   
+  <g fill="LightSeaGreen" transform="translate(0, 60) scale(1.0)"  on-click="{{show_selected_dataproj_}}" >
+  <path d="M8,20c0-2,0-10,0-10s0.005-0.45,0.239-1C6.16,9,4,9,4,9s-2,0-2,2v7c0,2,2,2,2,2v10h6v-8C10,22,8,22,8,20z"/>
+  <path d="M8,8c0.52,0,1.001-0.144,1.427-0.376c0.059-0.036,0.125-0.068,0.188-0.103C10.446,6.988,11,6.061,11,5c0-1.657-1.343-3-3-3
+    S5,3.343,5,5S6.343,8,8,8z"/>
+  <path d="M28,9h-4.238C23.995,9.55,24,10,24,10s0,8,0,10s-2,2-2,2v8h6V20c0,0,2,0,2-2s0-7,0-7S30,9,28,9z"/>
+  <path d="M22.38,7.519c0.065,0.035,0.134,0.068,0.194,0.105C23,7.856,23.48,8,24,8c1.657,0,3-1.343,3-3s-1.343-3-3-3s-3,1.343-3,3
+    C21,6.059,21.552,6.985,22.38,7.519z"/>
+  <circle cx="16" cy="5" r="3"/>
+  <path d="M22,11c0,0,0-2-2-2c-0.5,0-8,0-8,0s-2,0-2,2v7c0,2,2,2,2,2v10h8V20c0,0,2,0,2-2S22,11,22,11z"/>
+</g>
+</template>
+  
+   
+    <text x="30" y="110" font-size=15> {{dp.object_name}} </text>
+    
+    <template if="{{dp.edit_status==true && dp.current_editor!=username}}">   
+      <text fill="DeepPink" x="75" y="25" font-size=15> {{dp.current_editor}} </text>
+      <text fill="DeepPink" x="75" y="40" font-size=15> editing </text>
+    </template>  
+        
+    <template if="{{dp.creater!=username && dp.read_only==true}}">   
+      <text fill="DeepPink"  x="75" y="25" font-size=15> Read </text>
+      <text fill="DeepPink" x="75" y="40" font-size=15> Only </text>
+    </template>  
+    
+    </g> 
+    </template>           
+    </svg>
+    </div>
+    
+    <div style="background-color:pink; top:0; left:0; height:100%; width:10%; position:absolute; ">
+        
+        <img id="logo3" src="../logo3.jpg" style="top:0; left:0; position:absolute;" width="100%" >
+        <label class="hover-color" on-click="{{show_file_manage}}" style="font-size:20px; left:20px; top:200px; position:absolute; "> File Manage </label>
+        <label class="hover-color" on-click="{{show_share_manage}}" style="font-size:20px; left:10px; top:250px; position:absolute; "> Share Manage </label>
+        <label class="hover-color" on-click="{{show_link_manage}}" style="font-size:20px; left:15px; top:300px; position:absolute; "> Link Manage </label>
+        <label class="hover-color" on-click="{{show_user_forum}}" style="font-size:20px; left:20px; top:350px; position:absolute; "> User Forum </label>        
+        <label class="hover-color" on-click="{{show_msg_center}}" style="font-size:20px; left:15px; top:400px; position:absolute; "> Msg. Center</label>
+        <label class="hover-color" on-click="{{show_setting}}" style="font-size:20px; left:10px; top:450px; position:absolute; "> My Account </label>
+        <label class="hover-color" on-click="{{show_contact_us}}" style="font-size:20px; left:25px; top:500px; position:absolute; "> Contact Us </label>
+        <label class="hover-color" on-click="{{show_about}}" style="font-size:20px; left:55px; top:550px; position:absolute; "> About </label>
+    </div>
+    
+
+    
+</template>    
+    
+  
+    
+    
+    <template if="{{menu_show.click_menu_show==true}}">   
+     <div id="header" style="margin:0; padding:0; top:{{menu_show.menu_pos.y+30}}px; left:{{menu_show.menu_pos.x+180}}px;">
+     <ul id="nav" style="margin:0; padding:0; top:{{menu_show.menu_pos.y+30}}px; left:{{menu_show.menu_pos.x+180}}px;"> 
+      <li ><a id="menu_class" on-click="{{hide_menu}}" > Share Data Project</a></li>
+      <li ><a id="menu_class" on-click="{{hide_menu}}" > Rename Data Project</a></li>
+      <li ><a id="menu_class" on-click="{{hide_menu}}"> Delete Group</a></li>    
+       <template if="{{dataproj_list[active_dataproj].edit_status==true && dataproj_list[active_dataproj].current_editor!=username && dataproj_list[active_dataproj].read_only==false}}">   
+        <li ><a on-click="{{request_to_edit_dialog}}" id="menu_class"> Request to Edit </a></li>   
+       </template>
+      <li ><a id="menu_class" on-click="{{hide_menu}}"> Property</a></li>      
+      </ul><!-- nav --> 
+   </div><!-- header -->  
+  </template>     
+  
+  
+    
+  <template if="{{show_selected_dataproj==true}}">  
+   <layout-element parentID="{{dataproj_list[active_dataproj].object_id}}"  username="{{username}}" 
+   readonly="{{dataproj_list[active_dataproj].read_only}}" custom_tag="{{custom_tag}}"> </layout-element>  
+  </template>
+    
+  
+    
+</template>      
+  
+    
+    <x-dialog id="dialog" class="dialog">
+      <style no-shim>
+        .dialog {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          overflow: auto;
+          background: white;
+          padding:30px 42px;
+          outline: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        #dialog {
+          width: 1000px;
+          height: 600px;
+        }
+      </style>      
+      <button style="top:10px; left:93%; position:absolute;" core-overlay-toggle  on-click="{{hide_user_forum}}"> Close </button>    
+      
+      
+      
+      <template if="{{SHOW_USER_FORUM==true}}">   
+         <user-forum username="{{username}}"> </user-forum>
+      </template>
+      
+      <template if="{{SHOW_FILE_MANAGE==true}}">   
+          <div style="margin:0; padding:0; top:100px; left:100px; width:200px; background-color:cyan; position: absolute;  ">
+           <template repeat="{{dp in dataproj_list}}">
+           <p>  <button on-click="{{switch_data_proj}}" data-msg="{{dataproj_list.indexOf(dp)}}"   style='width:100px; background-color:{{dataproj_list.indexOf(dp)==active_dp ? "red" : "white"}};'> {{dp.object_name}} </button>
+           <button on-click="{{delete_data_proj}}" data-msg="{{dataproj_list.indexOf(dp)}}">  Delete </button>            </p>
+          </template>
+          </div>          
+          <div style="margin:0; padding:0; top:100px; left:350px; width:200px; background-color:pink; position: absolute;  ">
+          <template repeat="{{subfile in sub_file_list}}">
+           <p>  <!-- <label> {{subfile.object_name}} </label>  -->
+           <button on-click="{{switch_sub_file}}" data-msg="{{sub_file_list.indexOf(subfile)}}"   style='width:100px; background-color:{{sub_file_list.indexOf(subfile)==active_subfile ? "red" : "white"}};'> {{subfile.object_name}} </button>
+           <button on-click="{{delete_sub_file}}"  data-msg="{{sub_file_list.indexOf(subfile)}}">  Delete </button>            </p>
+          </template>          
+          </div>        
+          <div style="margin:0; padding:0; top:100px; left:600px; width:200px; background-color:cyan; position: absolute;  " > 
+          <p> <label> {{sub_file_list[active_subfile].object_name}} </label>   </p>
+           <p> <label> {{sub_file_list[active_subfile].creater}} </label>   </p>
+            <p> <label> {{sub_file_list[active_subfile].created_time}} </label>   </p>
+             <p> <label> {{sub_file_list[active_subfile].modified_time}} </label>   </p>
+              <p> <label> {{sub_file_list[active_subfile].type}} </label>   </p>               
+          </div>            
+          <button on-click="{{file_manage_close}}" style="top:400px; left:400px; position: absolute;"> Close </button>         
+      </template>
+      
+      
+      
+       <template if="{{show_new_dataproj==true}}">  
+     <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:700px; position: absolute;  ">
+     <p> <label> Data Project name: </label> <input value="{{new_dataproj.object_name}}"> </p>
+         
+     <label>Share this file to: </label>
+     <template repeat="{{share in new_dataproj.share_list}}">
+     <p> <label>Username</label> <input value="{{share.share_author}}">
+     <label>Privilege </label> 
+        <select value="{{share.previllage}}">
+          <option value="read_only">Read Only</option>
+          <option value="read_write">Read and Edit</option>
+        </select> 
+      <input type="color" value="{{share.color}}" >
+      <button on-click="{{delete_shared_user}}" data-msg='{{new_dataproj.share_list.indexOf(share)}}'> Del. shared user </button> 
+      </p>
+     </template>
+     <p> <button on-click="{{add_shared_user}}" data-msg="new_tablefile_list">Add shared user</button> </p>
+     
+     <p> <button on-click="{{new_dataproj_create}}"> Create </button> <button on-click="{{new_dataproj_cancel}}"> Cancel </button> </p>
+     </div>
+    </template> 
+    
+    
+    
+  
+  <template if="{{send_msg.SHOW_MSG_DIALOG==true}}">   
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:700px; position: absolute;  ">
+    <p> <label> Sender:  {{send_msg.sender}} </label>  </p>
+    <p> <label> Reiceiver:  {{send_msg.receiver}} </label>  </p>
+    <p> <label> Message Type: {{send_msg.msg_type}} </label>  </p>
+    <p> <label> Additional Message: </label>  </p>
+     <textarea cols=30 rows=5> {{send_msg.addition_msg}} </textarea>  
+    <p> <button on-click="{{send_message_apply}}"> Send </button> <button on-click="{{send_message_cancel}}"> Cancel </button> </p>
+    </div>
+  </template>
+  
+  
+  <template if="{{SHOW_MSG_RECEIVED==true}}">   
+  <div style="margin:0; padding:0; top:100px; left:100px; height:400px; width:700px; position: absolute;  ">
+    <p> <label> Sender:  {{receiv_msg[0].sender}} </label>  </p>
+    <p> <label> Reiceiver:  {{receiv_msg[0].receiver}} </label>  </p>
+    <p> <label> Message Type: {{receiv_msg[0].msg_type}}</label>  </p>
+    <p> <label> Additional Message: </label>  </p>
+     <textarea cols=30 rows=5 readonly="readonly"> {{receiv_msg[0].addition_msg}} </textarea>  
+    <p> <button on-click="{{receiv_message_accept}}"> Accept </button> <button on-click="{{receiv_message_ignore}}"> Ignore </button> </p>
+    </div>
+  </template>    
+    
+      
+      
+    </x-dialog>
+
+    
+  
+  </template>
+  <script type="application/dart" src="../folder_element.dart"></script>
+</polymer-element>

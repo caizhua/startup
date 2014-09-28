@@ -1,0 +1,924 @@
+<link rel="import" href="packages/polymer/polymer.html">
+<!--<script type="text/javascript" src="delaunay.js">     </script>  -->
+<script type="text/javascript" src="math.min.js">     </script>
+<script type="text/javascript" src="numeric-1.2.6.js">     </script>
+<script type="text/javascript" src="complex.js">     </script>
+<script type="text/javascript" src="jstat.min.js">     </script>
+<!-- <link rel="import" href="plot2d_element.html">
+<link rel="import" href="three-triangle.html">
+<link rel="import" href="three-parent.html"> -->
+<link rel="import" href="import_data.html">
+<link rel="import" href="free_overlay.html">
+
+<polymer-element name="table-element" attributes="">   
+   
+  <template>  
+  
+  <style>
+  
+  
+
+#left_div{
+    width: 195px;
+    height: 800px;
+    background-color:#CCFFFF;
+    float:left;
+    left: 0px;
+    top: 0px; 
+}
+
+#base_div {
+    font-size: 14pt;
+    text-align: center;
+    margin-left: 200px;
+}
+  
+
+#plot_div {
+  margin-left: 200px;
+}
+
+
+#show_table:hover{
+  color: red; 
+  font-size: 22pt;
+}
+
+#show_plot:hover{
+  color: red; 
+  font-size: 22pt;
+}
+  
+  #header, #nav {  } 
+
+  #header { 
+    float: none; 
+    position: absolute;
+  }
+   
+  #nav {  
+    width: 150px;
+    background-color: #C0C0C0; 
+    font-family:"Georgia"; 
+    float: none; 
+  }
+  #nav li { 
+    list-style: none;
+    float: none; 
+    text-align: left;
+    height: 30px ;
+  } 
+  #nav li a { 
+    color: black; 
+    text-decoration: none; 
+    display: block; 
+    width: 150px; 
+    height: 30px ;
+  } 
+  
+  #nav li a:hover { 
+    background-color: #0066FF; 
+  } 
+ 
+  
+  #nav li ul { 
+    display: none; 
+  } 
+  
+  #nav li:hover ul { 
+    display: block; 
+  } 
+
+    
+  #nav li ul li { 
+    float: none; 
+    display: block; 
+  }
+  #nav li ul li a { 
+    width: 150px; 
+    position: relative;
+    top: -30px;
+    left: 100px;
+    background: #C0C0C0; 
+    color: black; 
+  }
+  #nav li ul li a:hover { 
+    background: #0066FF; 
+    color: black; 
+  }
+  
+  
+.example {
+    position:absolute;
+    font-family:"Georgia"; 
+    left:0px;
+    top:0px;
+    width:800px;
+    height:40px;
+}
+
+/* main menu styles */
+#menu_nav {
+    display:inline-block;
+    width:100%;
+    margin:0px auto;
+    padding:0;
+    background: white;
+}
+
+
+#menu_nav li {
+    margin:0px;
+    float:left;
+    position:relative;
+    list-style:none;
+}
+#menu_nav a {
+    font-weight:bold;
+    color:black;
+    text-decoration:none;
+    display:block;
+    padding:6px 20px;
+    background-color: #C0C0C0; 
+    font-size:20px;
+    height:20px;
+}
+
+/* selected menu element */
+#menu_nav .current a, #menu_nav li:hover > a {
+    background:orange;
+    color:#000;
+    border-top:1px solid #f8f8f8;
+}
+
+/* sublevels */
+#menu_nav ul li:hover a, #menu_nav li:hover li a {
+    background:none;
+    border:none;
+    color:#000;
+}
+#menu_nav ul li a:hover {
+    background:orange;
+    color:#fff;
+}
+
+
+/* drop down */
+#menu_nav li:hover > ul {
+    opacity:1;
+    visibility:visible;
+}
+#menu_nav ul {
+    opacity:1;
+    visibility:hidden;
+    padding:0;
+    width:200px;
+    position:absolute;
+    background-color: #C0C0C0; 
+    border:1px solid #7788aa;
+}
+
+#menu_nav ul li {
+    float:none;
+    margin:0;
+}
+#menu_nav ul a {
+    font-weight:normal;
+}
+#menu_nav ul ul {
+    left:160px;
+    top:0px;
+}   
+  
+  
+   
+   </style>
+         
+         <div id="base_div" style="height:95%; width:85%; overflow:auto; -webkit-user-select: none; user-select: none;">    
+        <table id="base_table" style="border-collapse:collapse; position: absolute; top:35px; left:0%; table-layout: fixed;" border="2">        
+        <tr>
+        <td height="20" width="80">  
+        <label style="color:green; width:80px; height:20px; display:inline-block " on-click="{{all_select}}">  </label>
+         </td>               
+        <td height="20" width="80" template repeat="{{head_data in table.Table_head_data}}"> 
+           <label on-contextmenu="{{show_contextmenu}}" style="color:green; width:80px; height:20px; display:inline-block " on-click="{{col_select}}" data-msg='{"col":{{head_data.col}}, "row":0}'> {{head_data.Head_label}}({{head_data.Head_property}}) </label>
+        </td>
+        </tr>   
+
+        <tr template repeat="{{table_data in table.Table_data  |  myfilter((active_page*num_of_page), (active_page+1)*num_of_page))}}" >         
+            <td height="20" width="80" >      
+            <label style="color:green; width:80px; height:20px; display:inline-block" on-click="{{row_select}}" data-msg='{"row":{{table_data.row}}}'> {{table_data.label}} </label> 
+           </td>
+        <td height="20" width="80" template  repeat="{{row_data in table_data.Row_data}}">              
+            <template if="{{row_data.edit==false}}">
+            <label style="color:{{row_data.color}}; background-color:{{row_data.select}}; width:80px; height:20px; display:inline-block;"  on-mousedown="{{mouse_down}}" on-mousemove="{{mouse_move}}" 
+            on-contextmenu="{{show_contextmenu}}" on-doubleclick="{{show_input}}" id='{{"R"+row_data.row.toString()+"C"+row_data.col.toString()}}' data-msg='{"row":{{row_data.row}}, "col":{{row_data.col}}}'> 
+           {{row_data.Cell_data}}  </label>
+            </template>    
+            <template if="{{row_data.edit==true}}">
+            <input  on-change="{{hide_input}}"   style="width:75px;" data-msg='{"col":{{row_data.col}}, "row":{{row_data.row}}}' value="{{row_data.Cell_data}}">
+            </template>             
+         </td>        
+        </tr>                       
+        
+        </table> 
+        </div>
+        
+        
+               
+     <!--   <template >    on-keypress="{{enter_key_input}}"  -->
+              <!--        <template >     </template>
+         <template if="{{table_data.row<((active_page+1)*num_of_page) && table_data.row>=(active_page*num_of_page)}}">    </template>   
+                 <template if="{{table_data.row<((active_page+1)*num_of_page) && table_data.row>=(active_page*num_of_page)}}">  </template>  -->
+         
+       
+      
+<!--  on-click="{{cell_select}}"  "{{row_data.Cell_data.length>8 ? row_data.Cell_data.substring(0,7) : row_data.Cell_data}}" -->
+    
+     
+   <div class="example">
+    <ul id="menu_nav">
+        <li> <a >File</a>
+         <template if="{{DROP_MENU_SHOW==true}}">
+        <ul>
+        <!--        <li><a >Open Project</a></li>
+                <li><a >Save Project</a></li>
+                <li><a >Close Project</a></li>   -->
+                <li><a >New Table</a></li>
+                <li><a >New Plot</a></li>
+                <li><a >Import Data</a>
+                    <ul>
+                        <li><a on-click="{{menu_import_txt_dialog}}">From text file</a></li>
+                        <li><a on-click="{{menu_import_csv_dialog}}">From .csv file</a></li>
+                         <li><a on-click="{{menu_import_csv_dialog}}">From .xls .xlsx file</a></li>
+                        <li><a on-click="{{dropdown_dropbox_dialog}}">From Dropbox</a></li>
+                    </ul>
+                </li>
+      <!--          <li><a >Export Plot</a></li>   -->
+         </ul>     
+         </template>   
+        </li>    <!-- end of File -->
+        
+        <li> <a >Edit</a>
+           <template if="{{DROP_MENU_SHOW==true}}">
+            <ul>
+                <li><a on-click="{{dropdown_copy}}">Copy</a></li>
+                <li><a on-click="{{dropdown_cut}}">Cut</a></li>
+                <li><a on-click="{{dropdown_paste}}">Paste</a></li>
+                <li><a on-click="{{dropdown_clear}}">Clear</a></li>
+                <li><a on-click="{{ctx_find_dialog}}">Find</a></li>
+                <li><a on-click="{{ctx_replace_dialog}}">Replace</a></li>                
+  <!--              <li><a on-click="{{ctx_next_page}}">Next Page</a></li>
+                <li><a on-click="{{ctx_prev_page}}">Previous Page</a></li>
+                <li><a on-click="{{ctx_go_to_page_dialog}}">Go to Page</a></li>   -->
+                <li><a on-click="{{dropdown_preference_dialog}}">Preference</a></li>
+            </ul>
+            </template>
+        </li>    <!-- end of Edit -->
+        
+        <li><a >Table</a>
+           <template if="{{DROP_MENU_SHOW==true}}">
+            <ul>
+            <li><a on-click="{{dropdown_resize_dialog}}">Resize Table</a></li>
+            <li ><a>Append</a>
+           <ul>
+             <li><a on-click="{{dropdown_append_col}}">Empty Column</a></li> 
+             <li><a on-click="{{dropdown_append_row}}">Empty Row</a></li>
+           </ul>     
+           </li>
+           <li ><a>Insert</a>
+           <ul>
+             <li><a on-click="{{dropdown_insert_row}}">Empty Row</a></li>
+             <li><a on-click="{{dropdown_insert_col}}">Empty Column</a></li>
+             <li><a on-click="{{dropdown_insert_grid}}" data-msg="Grid_1d">1D Grid</a></li>
+             <li><a on-click="{{dropdown_insert_grid}}" data-msg="Grid_2d">2D Grid</a></li>
+             <li><a on-click="{{dropdown_insert_grid}}" data-msg="Grid_3d">3D Grid</a></li> 
+           </ul>     
+           </li>
+                <li><a on-click="{{dropdown_delete}}">Delete</a></li>                
+                <li><a on-click="{{dropdown_set_col_value}}">Set column values</a></li>    <!---  need to modify from here 07302014-->
+                <li ><a >Fill column with</a>
+                 <ul>
+                   <li><a on-click="{{dropdown_fill_row_num}}">Row numbers</a></li>
+                   <li><a on-click="{{dropdown_fill_rand_num}}">Random numbers</a></li>
+                 </ul>
+               </li>
+               <li ><a href="#">Sort column</a>
+                 <ul>
+          <li><a on-click="{{dropdown_asc_this_col}}"> &DoubleUpArrow; this column only</a></li>
+          <li><a on-click="{{dropdown_desc_this_col}}"> &DoubleDownArrow; this column only</a></li>
+          <li><a on-click="{{dropdown_asc_conj_col}}"> &DoubleUpArrow; (like in Excel) </a></li>
+          <li><a on-click="{{dropdown_desc_conj_col}}"> &DoubleDownArrow; (like in Excel) </a></li>
+                </ul>
+              </li>
+       <li ><a href="#">Set column as</a>
+        <ul>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="X">X [number]</a></li>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="Y">Y [number]</a></li>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="Z">Z [number]</a></li>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="S">S [string]</a></li>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="F">F [number]</a></li>
+          <li><a on-click="{{dropdown_set_as_geo}}">G [geography]</a></li>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="C">C [color]</a></li>
+          <li><a on-click="{{dropdown_set_as}}" data-msg="T">T [text]</a></li>
+        </ul>
+      </li>
+            <li ><a href="#">Move column</a>
+              <ul>
+              <li><a on-click="{{dropdown_move_first}}">To first</a></li>
+              <li><a on-click="{{dropdown_move_last}}">To last</a></li>
+              <li><a on-click="{{dropdown_move_left}}">To left</a></li>
+              <li><a on-click="{{dropdown_move_right}}">To right</a></li>
+   <!--           <li><a href="#">To bef. spec. col</a></li>   -->
+             </ul>
+            </li>
+            <li ><a on-click="{{dropdown_col_property}}">Column Property</a></li>
+           </ul>       
+           </template>
+         </li>   <!-- end of Table Operation -->
+        
+        <li><a >Analysis</a>
+         <template if="{{DROP_MENU_SHOW==true}}">
+        <ul>
+         <li ><a >Data Manipulation</a>
+         <ul>
+          <li><a on-click="{{dropdown_inte_num}}">Integration</a></li>
+          <li><a on-click="{{dropdown_diff_num}}">Differentiation</a></li>
+          <li><a on-click="{{dropdown_interpol_yfromx}}">Interpol Y from X</a></li>
+          <li><a on-click="{{dropdown_interpol_num}}">Interpol/Extrapol</a></li>
+          <li><a on-click="{{dropdown_interpol_num}}">Data Smooth</a>
+         <ul>
+          <li><a on-click="{{dropdown_}}">Average Method</a></li>
+          <li><a on-click="{{dropdown_}}">Low pass FFT</a></li>
+        </ul>  
+          </li>
+          </ul>            
+         </li>  
+      
+      <li ><a >Data Statistics</a>
+      <ul>
+         <li><a >Simple</a>
+           <ul>
+                <li><a on-click="{{dropdown_stat_max}}">Maxmium</a></li>
+                <li><a on-click="{{dropdown_stat_min}}">Minimum</a></li>
+                <li><a on-click="{{dropdown_stat_sum}}">Sum</a></li>
+                <li><a on-click="{{dropdown_stat_product}}">Product</a></li>
+                <li><a on-click="{{dropdown_stat_avg}}">Average</a></li>
+                <li><a on-click="{{dropdown_stat_std_dev}}">Standard Deviation</a></li> 
+                <li><a on-click="{{dropdown_stat_var}}">Variance</a></li>
+                 <li><a on-click="{{dropdown_stat_range}}">Range</a></li>
+                <li><a on-click="{{dropdown_stat_median}}">Median</a></li>
+                <li><a on-click="{{dropdown_stat_sum_sqr}}">Sum Squared</a></li>
+            </ul>
+          </li>
+          <li><a on-click="{{dropdown_stat_dist}}">Distribution</a></li>
+          <li><a on-click="{{dropdown_stat_kmeans}}">Kmeans</a></li>
+          <li><a on-click="{{dropdown_stat_corre}}">Correlation</a></li>
+          <li><a on-click="{{dropdown_stat_autocorre}}">Autocorrelation</a></li>
+        </ul>     
+      </li>  
+      <li ><a href="#">Data Fit</a>
+        <ul>
+          <li><a on-click="{{dropdown_linear_fit}}">Linear Fit</a></li>
+          <li><a on-click="{{dropdown_poly_fit}}">Polynomial Fit</a></li>
+          <li> <a on-click="{{dropdown_curve_fit}}">Curve Fit</a></li>
+          <li> <a on-click="{{dropdown_diff_eq_para_est}}">Diff. Eq. Para. Est. </a></li>
+        </ul>        
+      </li>
+      <li ><a href="#">Signal Process</a>
+        <ul>
+          <li><a on-click="{{dropdown_fft_dialog}}" >FFT</a></li>
+          <li><a on-click="{{dropdown_hil_trans}}" >Hilbert Trans.</a></li>
+        </ul>        
+      </li>
+      </ul>
+      </template>
+      </li>   <!-- end of Data Analysis -->
+        
+        <li><a >Plot</a>
+       <template if="{{DROP_MENU_SHOW==true}}">
+        <ul>
+        <li ><a href="#">Quick Plot</a>
+        <ul>
+          <li><a on-click="{{dropdown_plot_2d}}"  data-msg="line_2d" >Line</a></li>
+          <li><a on-click="{{dropdown_plot_2d}}"  data-msg="symbol_2d" >Symbol</a></li>
+          <li><a on-click="{{dropdown_plot_2d}}"  data-msg="linesymbol_2d" >Line+Symbol</a></li>
+   <!--       <li><a on-click="{{ctx_3d_surface_plot}}">3D Surface Plot</a></li>  -->
+          <li><a on-click="{{dropdown_plot_geo}}">Geography Plot</a></li>
+          <li><a on-click="{{dropdown_plot_heat_map}}">Heat Map Mosaic</a></li>
+          <li><a on-click="{{dropdown_plot_heat_map_interpo}}">Heat Map Interpo</a></li>
+   <!--       <li><a on-click="{{ctx_plot_more}}">More</a></li>   -->
+        </ul>
+       </li>
+      
+        <li ><a on-click="{{dropdown_batch_plot_dialog}}">Batch Plot</a>  </li>
+        
+        <li ><a on-click="{{dropdown_batch_plot_dialog}}">3D Surface Plot</a>  
+          <ul>
+          <li><a on-click="{{dropdown_plot_3d_surface}}" > 3D Surface</a> </li>
+          <li><a on-click="{{dropdown_plot_3d_iso}}" > Isosurface</a> </li>
+          </ul>
+        </li>
+        
+        <li ><a > with Google Chart</a> 
+        <ul>   <!-- option  , , , , , , , , , ,  on-click="{{dropdown_google_chart_dialog}}" -->
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="scatter" >Scatter Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="line" >Line Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="area" >Area Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="bar" > Bar Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="pie" > Pie Chart </a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="bubble" > Bubble Chart </a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="candlestick" > Candelstick Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="column" > Column Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="combo" > Combo Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="histogram" > Histogram Chart</a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="stepped-area" > Stepped-area Chart </a></li>
+          <li><a on-click="{{dropdown_google_chart}}"  data-msg="geo" > Geography Chart </a></li>
+        </ul>        
+         </li>        
+        </ul>
+        </template>
+        </li>       <!-- end of Plot -->
+        
+        <li><a >About</a>
+        <template if="{{DROP_MENU_SHOW==true}}">
+        <ul>
+                <li> <a >Help</a> </li>
+                <li><a >Setting</a></li>
+                <li><a >User Forum</a></li>
+                <li><a >Make us better</a></li>
+                <li><a >Customize </a></li>
+                <li><a >Contact Us</a></li>
+        </ul>
+        </template>
+        </li>     <!-- end of About -->
+    </ul>
+</div>
+
+
+
+
+      
+       <svg width="300px" height="100px" style="position:absolute; left:600px; top:0px; ">
+       <path on-click="{{ctx_first_page}}" fill="blue" transform="translate(-5, 5) scale(1.0)" d="M24.316,5.318,9.833,13.682,9.833,5.5,5.5,5.5,5.5,25.5,9.833,25.5,9.833,17.318,24.316,25.682z" />
+       <path on-click="{{ctx_prev_page}}" fill="blue" transform="translate(25, 0) scale(1.2)" d="M20.834,8.037L9.641,14.5c-1.43,0.824-1.43,2.175,0,3l11.193,6.463c1.429,0.826,2.598,0.15,2.598-1.5V9.537C23.432,7.887,22.263,7.211,20.834,8.037z" />
+       <path on-click="{{ctx_next_page}}" fill="blue" transform="translate(115, 0) scale(1.2)" d="M11.166,23.963L22.359,17.5c1.43-0.824,1.43-2.175,0-3L11.166,8.037c-1.429-0.826-2.598-0.15-2.598,1.5v12.926C8.568,24.113,9.737,24.789,11.166,23.963z" />
+       <path on-click="{{ctx_last_page}}" fill="blue" transform="translate(155, 5) scale(1.0)" d="M21.167,5.5,21.167,13.681,6.684,5.318,6.684,25.682,21.167,17.318,21.167,25.5,25.5,25.5,25.5,5.5z" />       
+       </svg>       
+       <input  style="left:670px; width:40px; top:5px; height:20px; font-size:15pt; position:absolute;" value="{{active_page  |  asInteger}}">
+      
+
+
+
+
+
+         
+               
+  <!-- ctxmenu_show.menu_type : "all", "column", "row", "ok-region", "region", "cell", "multi-column", "multi-row", "multi-ok-region", "unknown-select-type"     --> 
+        
+    <template if="{{ctxmenu_show.contextmenu_show==true}}">   
+     <div id="header" style="margin:0; padding:0; top:{{ctxmenu_show.y_pos}}px; left:{{ctxmenu_show.x_pos}}px;">
+     <ul id="nav" style="margin:0; padding:0; top:{{ctxmenu_show.y_pos}}px; left:{{ctxmenu_show.x_pos}}px;">
+     
+     <template if='{{ctxmenu_show.menu_type=="column" || ctxmenu_show.menu_type=="ok-region" || ctxmenu_show.menu_type=="all" || ctxmenu_show.menu_type=="multi-column" || ctxmenu_show.menu_type=="multi-row" || ctxmenu_show.menu_type=="multi-ok-region"}}'>   
+      <li ><a href="#">Quick Plot</a>
+        <ul>
+          <li><a on-click="{{ctx_plot_2d}}"  data-msg="line_2d" >Line</a></li>
+          <li><a on-click="{{ctx_plot_2d}}"  data-msg="symbol_2d" >Symbol</a></li>
+          <li><a on-click="{{ctx_plot_2d}}"  data-msg="linesymbol_2d" >Line+Symbol</a></li>
+   <!--       <li><a on-click="{{ctx_3d_surface_plot}}">3D Surface Plot</a></li>  -->
+          <li><a on-click="{{ctx_plot_geo}}">Geography Plot</a></li>
+          <li><a on-click="{{ctx_plot_heat_map}}">Heat Map Mosaic</a></li>
+           <li><a on-click="{{ctx_plot_heat_map_interpo}}">Heat Map Interpo</a></li>          
+    <!--      <li><a on-click="{{ctx_plot_more}}">More</a></li>   -->
+        </ul>
+      </li>      
+        <li ><a on-click="{{ctx_batch_plot_dialog}}">Batch Plot</a>  </li>      
+     </template>
+     
+      <template if='{{ctxmenu_show.menu_type=="all" || ctxmenu_show.menu_type=="column" || ctxmenu_show.menu_type=="row" || ctxmenu_show.menu_type=="cell" || ctxmenu_show.menu_type=="region" || ctxmenu_show.menu_type=="ok-region" }}'>
+      <li ><a on-click="{{ctx_copy}}">Copy</a></li>
+      <li ><a on-click="{{ctx_paste}}">Paste</a></li>
+      <li ><a on-click="{{ctx_cut}}">Cut</a></li>
+      </template>
+      
+      <li ><a on-click="{{ctx_clear}}">Clear</a></li>
+      
+     <template if="{{ctxmenu_show.menu_type=='row'}}">  
+      <li ><a on-click="{{ctx_delete}}">Delete</a></li>
+      <li ><a on-click="{{ctx_insert_row}}">Insert</a></li>
+     </template> 
+      
+     <template if="{{ctxmenu_show.menu_type=='column'}}"> 
+      <li ><a on-click="{{ctx_delete}}">Delete</a></li>
+      <li ><a>Insert</a>
+      <ul>
+          <li><a on-click="{{ctx_insert_col}}">Empty Column</a></li>
+          <li><a on-click="{{ctx_insert_grid}}" data-msg="Grid_1d">1D Grid</a></li>
+          <li><a on-click="{{ctx_insert_grid}}" data-msg="Grid_2d">2D Grid</a></li>
+          <li><a on-click="{{ctx_insert_grid}}" data-msg="Grid_3d">3D Grid</a></li> 
+      </ul>     
+      </li>
+     
+     <!--
+      <li ><a on-click="{{ctx_copy}}">Data Manipulation</a>
+      <ul>
+          <li><a on-click="{{ctx_inte_num}}">Integration</a></li>
+          <li><a on-click="{{ctx_diff_num}}">Differentiation</a></li>
+          <li><a on-click="{{ctx_interpol_num}}">Interpolation</a></li>
+        </ul>     
+      </li>    -->
+      
+      <li ><a on-click="{{ctx_set_col_value}}">Set column values</a></li>
+      <li ><a href="#">Fill column with</a>
+        <ul>
+          <li><a on-click="{{ctx_fill_row_num}}">Row numbers</a></li>
+          <li><a on-click="{{ctx_fill_rand_num}}">Random numbers</a></li>
+        </ul>
+      </li>
+      <li ><a href="#">Set as</a>
+        <ul>
+          <li><a on-click="{{ctx_set_as}}" data-msg="X">X [number]</a></li>
+          <li><a on-click="{{ctx_set_as}}" data-msg="Y">Y [number]</a></li>
+          <li><a on-click="{{ctx_set_as}}" data-msg="Z">Z [number]</a></li>
+          <li><a on-click="{{ctx_set_as}}" data-msg="S">S [string]</a></li>
+          <li><a on-click="{{ctx_set_as}}" data-msg="F">F [number]</a></li>
+          <li><a on-click="{{ctx_set_as_geo}}">G [geography]</a></li>
+          <li><a on-click="{{ctx_set_as}}" data-msg="C">C [color]</a></li>
+          <li><a on-click="{{ctx_set_as}}" data-msg="T">T [text]</a></li>
+        </ul>
+      </li>
+      <li ><a href="#">Sort column</a>
+        <ul>
+          <li><a on-click="{{ctx_asc_this_col}}"> &DoubleUpArrow; this column only</a></li>
+          <li><a on-click="{{ctx_desc_this_col}}"> &DoubleDownArrow; this column only</a></li>
+          <li><a on-click="{{ctx_asc_conj_col}}"> &DoubleUpArrow; (like in Excel) </a></li>
+          <li><a on-click="{{ctx_desc_conj_col}}"> &DoubleDownArrow; (like in Excel) </a></li>
+        </ul>
+      </li>
+      <li ><a href="#">Move column</a>
+        <ul>
+          <li><a on-click="{{ctx_move_first}}">To first</a></li>
+          <li><a on-click="{{ctx_move_last}}">To last</a></li>
+          <li><a on-click="{{ctx_move_left}}">To left</a></li>
+          <li><a on-click="{{ctx_move_right}}">To right</a></li>
+      <!--    <li><a href="#">To before specific column</a></li>  -->
+        </ul>
+      </li>
+      <li ><a on-click="{{ctx_col_property}}">Properties</a></li>
+     </template> 
+     
+      </ul><!-- nav --> 
+   </div><!-- header -->  
+  </template>
+  
+
+
+   <template if="{{FIND_DIALOG_SHOW==true}}">   
+    <div style="margin:0; padding:0; top:{{scroll_top+100}}px; left:100px; height:200px; width:400px; position: absolute; border-style:solid; background-color:#CCFFFF; "> 
+    <p> <label>Find:</label> <input value="{{find_string}}"> </p>    
+   <p> <button on-click="{{find_next_apply}}"> Find Next </button>
+   <button on-click="{{find_dialog_cancel}}"> Cancel </button>
+   
+    </div>  
+   </template>
+   
+   
+   
+  <template if="{{REPLACE_DIALOG_SHOW==true}}">   
+    <div style="margin:0; padding:0; top:{{scroll_top+100}}px; left:100px; height:200px; width:400px; position: absolute; border-style:solid; background-color:#CCFFFF; "> 
+    <p> <label>Find:</label> <input value="{{find_string}}"> </p>    
+    <p> <label>Replace:</label>  <input value="{{replace_string}}"> </p>
+    <p> <button on-click="{{find_next_apply}}"> Find Next </button>
+       <button on-click="{{replace_next_apply}}"> Replace </button> </p>
+    <p>   <button on-click="{{find_replace_all}}"> Find and Replace All </button> 
+      <button on-click="{{replace_dialog_cancel}}"> Cancel </button>  </p>
+   
+    </div>  
+   </template>
+   
+   
+   
+     
+<template  if="{{import_txt_dialog_show==true}}">
+<div style="margin:0; padding:0; top:0px; left:0px; height:100%; width:1000px; position: absolute;  background-color:#CCFFFF;"   >  
+<div style="overflow: auto; height:650px; width:1000px; position: absolute; ">
+<import-data table="{{table}}"></import-data>
+</div>
+<p>
+<button on-click="{{menu_import_txt_apply}}" style="position:absolute; top:650px;  left:100px; font-size:15px; ">Import Data</button>  
+<button on-click="{{menu_import_txt_cancel}}" style="position:absolute; top:650px;  left:400px; font-size:15px; "> Cancel </button>
+</p>
+
+</div>
+</template>
+   
+   
+   
+   
+     <x-dialog id="dialog" class="dialog">
+      <style no-shim>
+        .dialog {
+          box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          overflow: auto;
+          background: white;
+          padding:30px 42px;
+          outline: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        #dialog {
+          width: 800px;
+          height: 600px;         
+        }
+      </style>      
+      <button style="top:10px; left:91%; position:absolute;" core-overlay-toggle> Close </button>      
+      
+      
+
+      
+      
+  <template if="{{set_col_value.show==true}}">   
+  <div style="margin:0; padding:0; top:100px; left:100px; height:300px; width:400px; position: absolute; ">
+  <!--
+  <button style="top:20px; left:80px;  position:absolute;" on-click="{{set_col_value_use_func}}"> Insert function </button>
+  <button style="top:20px; left:200px;  position:absolute;" on-click="{{set_col_value_use_db}}"> Use database </button> 
+  -->
+  <button style="top:20px; left:20px;  position:absolute;" on-click="{{insert_func}}"> Insert function </button>
+  <button style="top:20px; left:160px;  position:absolute;" on-click="{{insert_func}}"> Insert Column </button>
+  <button style="top:20px; left:300px;  position:absolute;" on-click="{{insert_func}}"> Help </button>
+  
+  <template if="{{set_col_value.use_type=='use_function'}}">
+  <textarea style="top:80px; left:30px; height:240px; width:440px; position:absolute;" value="{{set_col_value.expression}}">  </textarea>
+  </template>
+  
+  <!--
+  <template if="{{set_col_value.use_type=='use_database'}}">
+  
+  <label style="top:100px; left:80px;  position:absolute;"> Database: </label>
+  
+   <select style="top:100px; left:200px;  position:absolute;" selectedIndex="{{set_col_value.db_selected}}" value="{{set_col_value.db_selected_value}}">
+    <option template repeat="{{db in set_col_value.Database_list}}">{{db.Database_name}}</option>
+   </select>
+
+  <label style="top:150px; left:80px;  position:absolute;"> Key to Use: </label>
+  
+  <select style="top:150px; left:200px;  position:absolute;" selectedIndex="{{set_col_value.Database_list[set_col_value.db_selected].key_selected}}" value="{{set_col_value.Database_list[set_col_value.db_selected].key_selected_value}}">
+    <option template repeat="{{key in set_col_value.Database_list[set_col_value.db_selected].Key_list}}">{{key}}</option>
+   </select>
+  
+   <label style="top:200px; left:80px;  position:absolute;"> Filter: </label>
+   <template repeat="{{filter in set_col_value.filter_list}}"> 
+   <input style="top:180px; left:150px; width:100px; position:relative;" value="{{filter}}">
+   </template>
+   
+   <button style="top:200px; left:300px;  position:absolute;" on-click="{{set_col_value_add_filter}}"> Add filter </button>
+   
+  </template>  
+  -->
+  
+  <button style="top:350px; left:100px;  position:absolute;" on-click="{{set_col_value_apply}}"> Apply </button>
+  <button style="top:350px; left:250px;  position:absolute;" on-click="{{set_col_value_cancel}}"> Cancel </button>
+  </div>
+  </template>
+  
+  
+  
+  <template if="{{show_lag_inter_diaglog==true}}">
+  <div style="margin:0; padding:0; top:100px; left:200px; height:300px; width:400px; position: absolute;  ">  
+  <p> <label> X column to interpolate: </label>  
+     <select value="{{template_col_inter}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select>  
+   </p>
+    
+  <button style="top:250px; left:0px;  position:absolute;" on-click="{{lag_inter_apply}}"> Apply </button>
+  <button style="top:250px; left:150px;  position:absolute;" on-click="{{lag_inter_cancel}}"> Cancel </button>
+  </div>
+  </template>  
+  
+  
+  
+  <template if="{{geography_set_as.show_set_as_geo_dialog==true}}">
+  <div style="margin:0; padding:0; top:100px; left:100px; height:300px; width:400px; position: absolute;  ">  
+  <p> <label> Country to use: </label>      
+  <select  selectedIndex="{{geography_set_as.country_selected}}" value="{{geography_set_as.country_selected_value}}">
+    <option template repeat="{{coun in geography_set_as.Country_list}}">{{coun}}</option>
+   </select>
+   </p>    
+  <button style="top:250px; left:100px;  position:absolute;" on-click="{{geography_set_as_apply}}"> Apply </button>
+  <button style="top:250px; left:250px;  position:absolute;" on-click="{{geography_set_as_cancel}}"> Cancel </button>
+  </div>
+  </template>  
+  
+  
+  
+  <template if="{{grid_insert.show_insert_grid_dialog==true}}">
+  <div style="margin:0; padding:0; top:100px; left:100px; height:250px; width:600px;  ">    
+  <p> <label> Please specify the range for grid:</label>  </p>
+  <p> <label> Min X </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.x_min | asDouble}}">
+   <label> Max X </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.x_max | asDouble}}">
+     <label> Number of Points </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.num_x_point | asInteger}}">  </p>   
+  <template if='{{grid_insert.grid_type=="Grid_2d"||grid_insert.grid_type=="Grid_3d"}}'>  
+  <p> <label> Min Y </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.y_min | asDouble}}">  
+   <label> Max Y </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.y_max | asDouble}}">  
+   <label> Number of Points </label>  <input style="width:80px; height:20px; display:inline-block"  value="{{grid_insert.num_y_point | asInteger}}">  </p>   
+  </template>  
+  <template if='{{grid_insert.grid_type=="Grid_3d"}}'>  
+  <p> <label> Min Z </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.z_min | asDouble}}">  
+   <label> Max Z </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.z_max | asDouble}}">  
+    <label> Number of Points </label>  <input style="width:80px; height:20px; display:inline-block" value="{{grid_insert.num_z_point | asInteger}}">  </p>   
+  </template>    
+  <button style="top:200px; left:100px;  position:absolute;" on-click="{{grid_insert_apply}}"> Apply </button>
+  <button style="top:200px; left:250px;  position:absolute;" on-click="{{grid_insert_cancel}}"> Cancel </button>
+  </div>
+  </template>  
+  
+  
+  
+  <!--    </template>  -->  <!-- END of Table show mode  -->
+  
+    
+   <template if="{{plot_dialog.show==true}}">
+  <div style="margin:0; padding:0; top:300px; left:500px; height:250px; width:400px; position: absolute; border-style:solid; background-color:#CCFFFF; ">    
+   <p>  <label style="top:25px; left:80px;  position:absolute;"> X: </label> <input style="top:20px; left:180px;  position:absolute;" value="{{plot_dialog.x_label}}"> </p>
+   <p>  <label style="top:65px; left:80px;  position:absolute;"> Y: </label> <input style="top:60px; left:180px;  position:absolute;" value="{{plot_dialog.y_label}}"> </p>
+   <p>  <label style="top:105px; left:80px;  position:absolute;"> F: </label> <input style="top:100px; left:180px;  position:absolute;" value="{{plot_dialog.f_label}}"> </p>
+   <p>  <label style="top:145px; left:80px;  position:absolute;"> Filter: </label> <input style="top:140px; left:180px;  position:absolute;" value="{{plot_dialog.filter}}"> </p>
+  <button style="top:180px; left:100px;  position:absolute;" on-click="{{ctx_3d_surface_plot_apply}}"> Apply </button>
+  <button style="top:180px; left:250px;  position:absolute;" on-click="{{ctx_3d_surface_plot_cancel}}"> Cancel </button>  
+  </div>
+  </template>
+  
+  
+      
+   <template if="{{batch_plot_dialog.show==true}}">
+  <div style="margin:50; padding:50; top:50px; left:100px;  position: absolute;  ">    
+   <p>  <label > Plot Type: </label> 
+     <select value="{{batch_plot_dialog.plot_type}}">
+      <option value="line_2d">2D Line</option>
+      <option value="symbol_2d">2D Symbol</option>
+      <option value="linesymbol_2d">2D Line+Symbol</option>
+      <option value="heat_map">2D Heat Map</option>
+      <option value="geography">Geography</option>
+     </select>  </p>
+   <p>  <label > X: </label>  
+   <select value="{{batch_plot_dialog.x_label}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select>    
+    <label > Y: </label>  
+   <select value="{{batch_plot_dialog.y_label}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select>    </p>
+   
+   <template if='{{batch_plot_dialog.plot_type=="heat_map"}}'>
+   <p>  <label > F: </label>  
+   <select value="{{batch_plot_dialog.f_label}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select>    </p>
+   </template>
+     
+    <p> <label > Filter by: </label> </p>
+    <template repeat="{{filter in batch_plot_dialog.filter_list}}">
+     <p>
+   <select value="{{filter.filter_label}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select> 
+        <select value="{{filter.filter_operator}}">
+      <option value="==">==</option>
+      <option value="!=">!=</option>
+      <option value=">"> &gt; </option>
+      <option value="<"> &lt; </option>
+      <option value=">="> &ge;  </option> 
+      <option value="<="> &le; </option> 
+     </select> 
+    <input value="{{filter.filter_value}}"> 
+    </p>
+    </template>
+    <button on-click="{{batch_plot_add_filter}}"> Add filter key</button>     
+ 
+    <p> <label > Group by: </label>   </p>
+    <template repeat="{{group in batch_plot_dialog.group_list}}">
+    <p>
+    <select value="{{group.group_label}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select> 
+     <label> Value deviation: </label>
+     <input style="width:50px;" value="{{group.value_deviation}}">   
+     <label > Present Mode: </label>
+     <select value="{{group.present_mode}}">
+   <!--   <option value="interactive">Interactive</option>  -->
+      <option value="overlay">Overlay</option>
+     <!--     <option value="3d_stack">3D Stack</option>  -->  
+      <option value="spreading">Multiple Figures</option>
+      <option value="multifile">Multiple Files</option>
+    <!--     <option value="dynamic">Dynamic</option>  -->
+     </select>   
+     <button on-click="{{batch_plot_remove_group}}" data-msg="{{batch_plot_dialog.group_list.indexOf(group)}}"> Delete group key</button>   
+     </p>  
+     </template>     
+     <button on-click="{{batch_plot_add_group}}"> Add group key</button>   
+  <p>
+  <button style="left:100px;  position:absolute; font-size:18px;" on-click="{{batch_plot_dialog_apply}}"> Apply </button>
+  <button style="left:450px;  position:absolute; font-size:18px;" on-click="{{batch_plot_dialog_cancel}}"> Cancel </button>  
+  </p>
+  </div>
+  </template>
+  
+  
+
+   
+   
+   <template if="{{FFT_DIALOG_SHOW==true}}">   
+    <div style="margin:0; padding:0; top:100px; left:100px; height:200px; width:400px; position: absolute;  "> 
+    <p>  <label > Input Column: </label>  
+    <select value="{{input_col}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select>    </p>     
+      <p>  <label > Output column: </label>  
+     <select value="{{output_col}}">
+     <option template repeat="{{key in table.Table_head_data}}">{{key.Head_label}}</option>  
+     </select>    </p>           
+     <p> <button on-click="{{ctx_fft_apply}}"> Apply </button>
+     <button on-click="{{ctx_fft_cancel}}"> Cancel </button>    
+    </div>
+    </template>  
+    
+      
+      
+      <template if="{{DROPBOX_DIALOG==true}}">   
+    <div style="margin:0; padding:0; left:100px; top:100px;  position:absolute;  ">     
+     <iframe style = "height:50px; width:200px;"    src="./dropbox.html"></iframe>   
+      <button on-click="{{dropbox_dialog_cancel}}"> Cancel </button>    
+    </div>
+    </template>  
+      
+     <template if="{{RESIZE_DIALOG_SHOW ==true}}">   
+    <div style="margin:0; padding:0; left:100px; top:100px;  position:absolute;  ">     
+     <p> <label> New Number of Row: </label> <input value="{{new_num_of_row | asInteger}}"> </p>
+      <p> <label> New Number of Col: </label> <input value="{{new_num_of_col | asInteger}}"> </p>
+      <p> <button on-click="{{resize_table_apply}}"> Apply </button>    
+      <button on-click="{{resize_table_cancel}}"> Cancel </button>  </p>
+    </div>
+    </template>  
+    
+    
+    <template if="{{COL_PROPERTY_SHOW==true}}">   
+    <div style="margin:0; padding:0; left:00px; top:100px;  position:absolute;">       
+     <div style="margin:0; padding:0; left:100px; top:100px; width:100px; position:absolute;">
+      <template repeat="{{headx in table.Table_head_data}}">
+       <p> <button on-click="{{change_active_col}}"  data-msg="{{table.Table_head_data.indexOf(headx)}}"   style='width:100px; background-color:{{headx.col==active_col ? "red" : "white"}};' >  {{headx.Head_label}}   </button> </p>
+     </template>
+      </div>
+     
+     <div  style="margin:0; padding:0; left:300px; top:100px; width:300px; background-color:pink; position:absolute;">
+     <template repeat="{{headx in table.Table_head_data}}">
+       <template if="{{headx.col==active_col}}">
+         <p> <lable> Column name: </lable>  <input value="{{headx.Head_label}}"> </p>
+       </template>
+     </template>
+     </div>
+     
+     
+     <p> <button style="left:500px; top: 300px;  position:absolute; font-size:18px;" on-click="{{col_property_close}}"> Close </button>    </p>
+    </div>
+    </template>  
+    
+    
+      
+      
+    </x-dialog>
+   
+   
+  
+  
+  
+ <!--   
+    
+       
+  <template if="{{table_show_mode==false}}">  
+   <div id="plot_sss" style="margin:0; padding:0; top:0px; left:200px; height:300%; width:100%; position: absolute; border-style:solid; background-color:#CCFFFF; ">
+     <template if="{{show_2d_plot_mode==true}}">    
+      <plot2d-element plot_type="{{plot_type}}" plot_data="{{plot_data}}"> </plot2d-element>   
+    </template>           
+        <three-parent scene="{{scene}}"> </three-parent>           
+      <template repeat="{{tri in threed_surf_plt.triangle_list}}">        
+        <three-triangle triangle_def="{{tri}}" scene="{{scene}}"></three-triangle>   
+      </template>     
+    </div>         
+  </template>
+  
+  -->
+     
+
+      
+      
+  
+  </template>
+  <script type="application/dart" src="table_element.dart"></script>
+</polymer-element>
+
